@@ -4,7 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>TreniCal</name>
-    <packaging>jar</packaging>
+    <modules>
+        <module>treni-cal-proto</module>
+        <module>treni-cal-server</module>
+        <module>treni-cal-client</module>
+        <module>treni-cal-shading</module>
+    </modules>
+    <packaging>pom</packaging>
     <groupId>org.example</groupId>
     <artifactId>TreniCal</artifactId>
     <version>1.0-SNAPSHOT</version>
