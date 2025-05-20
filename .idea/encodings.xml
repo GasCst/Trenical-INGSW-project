@@ -9,5 +9,7 @@
     <file url="file://$PROJECT_DIR$/treni-cal-proto/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/treni-cal-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/treni-cal-server/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/treni-cal-shading/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/treni-cal-shading/src/main/resources" charset="UTF-8" />
   </component>
 </project>
