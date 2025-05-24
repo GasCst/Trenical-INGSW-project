@@ -2,44 +2,26 @@ syntax = "proto3";
 
 package proto;
 
+option java_multiple_files = true;
+option java_package = "proto";
+option java_outer_classname = "TreniProto";
+
 // Servizio per la ricerca dei treni
-service TrainService {
-  rpc SearchTrains (SearchRequest) returns (TrainList);
-  rpc BookTicket (BookTicketRequest) returns (Ticket);
+service TreniCal {
+  rpc search (SearchRequest) returns (SearchResponse);
 }
 
-// Richiesta per la ricerca treni
 message SearchRequest {
-  string departure_station = 1;
-  string arrival_station = 2;
-  string date = 3;
+  string query = 1;
 }
 
-// Risultato della ricerca treni
-message TrainList {
-  repeated Train trains = 1;
+message SearchResponse {
+  repeated Ticket tickets = 1;
 }
 
-// Dati di un singolo treno
-message Train {
-  string id = 1;
-  string departure_time = 2;
-  string arrival_time = 3;
-  string train_type = 4;
-}
-
-// Richiesta per la prenotazione di un biglietto
-message BookTicketRequest {
-  string train_id = 1;
-  string user_id = 2;
-  string class_type = 3;  // Classe del biglietto (es. Standard, Premium)
-}
-
-// Biglietto acquistato
 message Ticket {
   string ticket_id = 1;
-  string user_id = 2;
-  string train_id = 3;
-  string purchase_date = 4;
-  string class_type = 5;
+  string destination = 2;
+  string departure_time = 3;
+  float price = 4;
 }
