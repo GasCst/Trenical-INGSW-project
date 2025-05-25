@@ -6,24 +6,135 @@ option java_multiple_files = true;
 option java_package = "proto";
 option java_outer_classname = "TreniProto";
 
-// Servizio per la ricerca dei treni
+import "google/protobuf/timestamp.proto";
+
+// -------- SERVIZI --------
+
+// Servizio per la ricerca dei treni e aggiornamenti in tempo reale.
 service TreniCal {
-  rpc search (SearchRequest) returns (SearchResponse);
+  rpc SearchTrains(SearchTrainRequest) returns (SearchTrainResponse);
+  rpc GetTrainRealTimeInfo(TrainInfoRequest) returns (stream TrainRealTimeUpdate);
 }
 
-message SearchRequest {
-  string query = 1;
-  string from = 2;
-  string to = 3;
+// servizio per comprare-modificare-richiesta  di biglietti( Ticket )
+service TicketService {
+  rpc PurchaseTickets(PurchaseTicketRequest) returns (PurchaseTicketResponse);
+  rpc ModifyTicket(ModifyTicketRequest) returns (ModifyTicketResponse);
+  rpc GetMyTickets(UserRequest) returns (TicketListResponse);
 }
 
-message SearchResponse {
-  repeated Ticket tickets = 1;
+service NotificationService {
+  rpc SubscribeToTripChanges(TripSubscriptionRequest) returns (stream TripChangeNotification);
+}
+
+// ----- TIPI DI MESSAGGI  -----
+
+message Station {
+  string id = 1;
+  string name = 2;
+}
+
+message TravelDate {
+  int32 year = 1;
+  int32 month = 2;
+  int32 day = 3;
+}
+
+message Train {
+  string id = 1;
+  string train_number = 2;
+  Station departure_station = 3;
+  Station arrival_station = 4;
+  google.protobuf.Timestamp departure_time = 5;
+  google.protobuf.Timestamp arrival_time = 6;
+  string service_class = 7;
+  double price = 8;
+  int32 available_seats = 9;
+  string train_type = 10;
 }
 
 message Ticket {
-  string ticket_id = 1;
-  string destination = 2;
-  string departure_time = 3;
-  float price = 4;
+  string id = 1;
+  string user_id = 2;
+  Train train_details = 3;
+  string seat_number = 4;
+  google.protobuf.Timestamp purchase_date = 5;
+  string status = 6;
 }
+
+message SearchTrainRequest {
+  Station departure_station = 1;
+  Station arrival_station = 2;
+  TravelDate travel_date = 3;
+  string preferred_train_type = 4;
+  string preferred_service_class = 5;
+}
+
+message SearchTrainResponse {
+  repeated Train available_trains = 1;
+}
+
+message TrainInfoRequest {
+  string train_id = 1;
+}
+
+message TrainRealTimeUpdate {
+  string train_id = 1;
+  google.protobuf.Timestamp updated_arrival_time = 2;
+  string platform = 3;
+  string status_update = 4;
+}
+
+message PurchaseTicketRequest {
+  string user_id = 1;
+  string train_id = 2;
+  int32 number_of_tickets = 3;
+  string service_class = 4;
+  // dettagli di pagamento simulati
+  string payment_method_token = 5;
+}
+
+message PurchaseTicketResponse {
+  bool success = 1;
+  repeated Ticket purchased_tickets = 2;
+  string message = 3;
+}
+
+message ModifyTicketRequest {
+  string ticket_id = 1;
+  string user_id = 2;
+  optional TravelDate new_travel_date = 3;
+  optional string new_departure_time_str = 4;
+  optional string new_service_class = 5;
+  optional string payment_method_token_for_diff = 6;
+}
+
+message ModifyTicketResponse {
+  bool success = 1;
+  Ticket modified_ticket = 2;
+  string message = 3;
+  double additional_charge = 4;
+}
+
+message UserRequest {
+  string user_id = 1;
+}
+
+message TicketListResponse {
+  repeated Ticket tickets = 1;
+}
+
+
+message TripSubscriptionRequest {
+  string user_id = 1;
+  string ticket_id = 2;
+}
+
+message TripChangeNotification {
+  string ticket_id = 1;
+  string update_message = 2;
+  google.protobuf.Timestamp new_departure_time = 3;
+  string new_platform = 4;
+}
+
+
