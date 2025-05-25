@@ -13,6 +13,8 @@ service TreniCal {
 
 message SearchRequest {
   string query = 1;
+  string from = 2;
+  string to = 3;
 }
 
 message SearchResponse {
