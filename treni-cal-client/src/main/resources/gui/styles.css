@@ -1,0 +1,39 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif; /* Font più moderno */
+    -fx-background-color: #f0f0f0; /* Sfondo leggermente grigio */
+}
+
+.button {
+    -fx-background-color: #007bff; /* Blu */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 5px; /* Angoli arrotondati */
+}
+
+.button:hover {
+    -fx-background-color: #0056b3; /* Blu più scuro al passaggio del mouse */
+}
+
+.label {
+    -fx-font-size: 14px;
+}
+
+#notificationArea { /* Se hai dato un ID al TextArea */
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-background-color: #333;
+    -fx-text-fill: #lime; /* Stile "terminale" per le notifiche */
+    -fx-control-inner-background: #333; /* Colore interno per TextArea */
+}
+
+.table-view .column-header {
+    -fx-background-color: #e0e0e0;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-background-radius: 5px;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 5px;
+    -fx-padding: 5px;
+}

@@ -1,5 +1,6 @@
 package com.trenical.services;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import proto.*;
 import com.trenical.database.TrainDatabase;
@@ -111,6 +112,26 @@ public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase{
         }
 
         responseObserver.onCompleted();
+    }
+
+
+    @Override
+    public void getAvailableStations( EmptyRequest request, StreamObserver<StationListResponse> responseObserver){
+        System.out.println("[Server] Received GetAvailableStations request");
+        try{
+            List<Station> stations = trainDatabase.getAllUniqueStations();
+            StationListResponse response = StationListResponse.newBuilder()
+                    .addAllStations(stations)
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e ){
+            System.err.println("[Server] Error getting available stations: " + e.getMessage());
+            e.printStackTrace();
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Error fetching stations: "+ e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
 

@@ -5,6 +5,7 @@ import proto.Train;
 import com.google.protobuf.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,6 +75,19 @@ public class TrainDatabase {
 
 
         return Math.max(0, totalSeatsForClass - (int)soldTickets);
+    }
+
+    public List<Station> getAllUniqueStations(){
+        // per semplicitá definisco le stazioni staticamente qui per il momento ,
+        // in un sistema reale le stazioni dovrebbero essere messe in una fonte dati piú strutturata come un DB "ho intenzione di usare postgres"
+
+        Map<String, Station> stationMap = new HashMap<>();
+        for ( Train train : trains.values()){
+            stationMap.putIfAbsent(train.getDepartureStation().getId(), train.getDepartureStation() );
+            stationMap.putIfAbsent(train.getArrivalStation().getId(), train.getArrivalStation());
+        }
+
+        return new ArrayList<>(stationMap.values());
     }
 
     public void updateTrainStatus(String trainId, String status, String platform, Timestamp newArrivalTime) {

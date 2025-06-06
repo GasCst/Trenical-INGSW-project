@@ -14,6 +14,7 @@ import "google/protobuf/timestamp.proto";
 service TreniCal {
   rpc SearchTrains(SearchTrainRequest) returns (SearchTrainResponse);
   rpc GetTrainRealTimeInfo(TrainInfoRequest) returns (stream TrainRealTimeUpdate);
+  rpc GetAvailableStations(EmptyRequest) returns (StationListResponse);
 }
 
 // servizio per comprare-modificare-richiesta  di biglietti( Ticket )
@@ -26,6 +27,8 @@ service TicketService {
 service NotificationService {
   rpc SubscribeToTripChanges(TripSubscriptionRequest) returns (stream TripChangeNotification);
 }
+
+
 
 // ----- TIPI DI MESSAGGI  -----
 
@@ -137,4 +140,9 @@ message TripChangeNotification {
   string new_platform = 4;
 }
 
+message EmptyRequest {}
+
+message StationListResponse{
+  repeated Station stations = 1;
+}
 

@@ -1,0 +1,27 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    google-protobuf (3.25.8)
+    googleapis-common-protos-types (1.20.0)
+      google-protobuf (>= 3.18, < 5.a)
+    grpc (1.72.0-x64-mingw-ucrt)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc-tools (1.72.0)
+    nokogiri (1.18.8-x64-mingw-ucrt)
+      racc (~> 1.4)
+    racc (1.8.1)
+    viaggiatreno (1.0.5)
+      nokogiri
+
+PLATFORMS
+  x64-mingw-ucrt
+
+DEPENDENCIES
+  google-protobuf (~> 3.19)
+  grpc (~> 1.40)
+  grpc-tools (~> 1.40)
+  viaggiatreno (~> 1.0.5)
+
+BUNDLED WITH
+   2.6.7

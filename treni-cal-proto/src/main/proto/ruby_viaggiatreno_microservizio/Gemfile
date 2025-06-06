@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+gem 'grpc', '~> 1.40'
+gem 'grpc-tools', '~> 1.40'
+gem 'google-protobuf', '~> 3.19'
+gem 'viaggiatreno', '~> 1.0.5'

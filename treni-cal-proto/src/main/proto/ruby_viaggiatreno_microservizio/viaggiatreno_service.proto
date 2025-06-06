@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package proto.ruby_viaggiatreno_microservizio;
+
+option java_multiple_files = true;
+option java_package = "ruby_viaggiatreno_microservizio";
+option ruby_package = "Trenical::RubyViaggiatreno";
+
+service ViaggiatrenoService {
+  rpc GetTrainRealtimeStatus(TrainStatusRequest) returns (TrainStatusResponse);
+}
+
+
+message TrainStatusRequest {
+  string train_number = 1;
+}
+
+message TrainStatusResponse {
+  string train_number = 1;
+  string train_category = 2;
+  string origin_station = 3;
+  string destination_station = 4;
+  string scheduled_departure_time = 5;
+  string scheduled_arrival_time = 6;
+  string actual_departure_time = 7;
+  string actual_arrival_time = 8;
+  int32 delay_minutes = 9;
+  string last_detected_station = 10;
+  string last_detection_time = 11;
+  string train_status_description = 12;
+  bool found = 13;
+  string error_message = 14;
+}
+
+
+// Dati delle stazioni per estendere il servizio
+/*
+message StationInfoRequest {
+  string station_id = 1;
+}
+
+message TrainDeparture {
+  string train_number = 1;
+  string destination_station = 2;
+  string scheduled_time = 3;
+  string actual_time = 4;
+  int32 delay_minutes = 5;
+  string track = 6; // é il binario di partenza
+}
+
+message StationDeparturesResponse {
+  repeated TrainDeparture departures = 1;
+}
+*/
