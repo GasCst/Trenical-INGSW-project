@@ -1,0 +1,81 @@
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,wheelchair_boarding
+83001,RMT,Roma Termini,Stazione Centrale di Roma,41.9009,12.5026,RM,,1,,Europe/Rome,1
+83002,MIC,Milano Centrale,Stazione Centrale di Milano,45.4862,9.2048,MI,,1,,Europe/Rome,1
+83003,SMN,Firenze S.M.N.,Stazione Santa Maria Novella,43.7761,11.2474,FI,,1,,Europe/Rome,1
+83004,NAC,Napoli Centrale,Stazione Centrale di Napoli,40.8519,14.2681,NA,,1,,Europe/Rome,1
+83005,VEN,Venezia S.L.,Stazione Santa Lucia,45.4408,12.3214,VE,,1,,Europe/Rome,1
+83006,TOR,Torino P.N.,Stazione Porta Nuova,45.0619,7.6781,TO,,1,,Europe/Rome,1
+83007,GEN,Genova P.P.,Stazione Principe,44.4165,8.9206,GE,,1,,Europe/Rome,1
+83008,BOL,Bologna Centrale,Stazione Centrale di Bologna,44.5063,11.3427,BO,,1,,Europe/Rome,1
+83009,BAR,Bari Centrale,Stazione Centrale di Bari,41.1156,16.8661,BA,,1,,Europe/Rome,1
+83010,PAL,Palermo Centrale,Stazione Centrale di Palermo,38.1122,13.3658,PA,,1,,Europe/Rome,1
+83011,CAT,Catania Centrale,Stazione Centrale di Catania,37.5067,15.0866,CT,,1,,Europe/Rome,1
+83012,RGC,Reggio Calabria C.,Stazione Centrale di Reggio Calabria,38.1138,15.6515,RC,,1,,Europe/Rome,1
+83013,CGL,Cagliari,Stazione di Cagliari,39.2106,9.1169,CA,,1,,Europe/Rome,1
+83014,VER,Verona P.N.,Stazione Porta Nuova,45.4281,10.9830,VR,,1,,Europe/Rome,1
+83015,PD,Padova,Stazione di Padova,45.4177,11.8807,PD,,1,,Europe/Rome,1
+83016,TRE,Trento,Stazione di Trento,46.0698,11.1210,TN,,1,,Europe/Rome,1
+83017,BZ,Bolzano,Stazione di Bolzano,46.4982,11.3548,BZ,,1,,Europe/Rome,1
+83018,ANC,Ancona,Stazione di Ancona,43.6025,13.5014,AN,,1,,Europe/Rome,1
+83019,PES,Pescara,Stazione di Pescara,42.4634,14.2081,PE,,1,,Europe/Rome,1
+83020,FOG,Foggia,Stazione di Foggia,41.4606,15.5458,FG,,1,,Europe/Rome,1
+83021,LEC,Lecce,Stazione di Lecce,40.3515,18.1750,LE,,1,,Europe/Rome,1
+83022,REG,Reggio Emilia AV,Stazione Mediopadana,44.7340,10.6368,RE,,1,,Europe/Rome,1
+83023,SAL,Salerno,Stazione di Salerno,40.6787,14.7594,SA,,1,,Europe/Rome,1
+83024,COS,Cosenza,Stazione di Cosenza,39.2922,16.2539,CS,,1,,Europe/Rome,1
+83025,LAT,Latina,Stazione di Latina,41.4676,12.9037,LT,,1,,Europe/Rome,1
+83026,FRA,Frascati,Stazione di Frascati,41.8068,12.6812,RM,,1,,Europe/Rome,1
+83027,PSA,Pisa Centrale,Stazione Centrale di Pisa,43.7074,10.3970,PI,,1,,Europe/Rome,1
+83028,LIV,Livorno Centrale,Stazione Centrale di Livorno,43.5456,10.3106,LI,,1,,Europe/Rome,1
+83029,ARE,Arezzo,Stazione di Arezzo,43.4633,11.8781,AR,,1,,Europe/Rome,1
+83030,PRU,Perugia,Stazione di Perugia,43.1122,12.3888,PG,,1,,Europe/Rome,1
+83031,TER,Terni,Stazione di Terni,42.5635,12.6464,TR,,1,,Europe/Rome,1
+83032,ASC,Ascoli Piceno,Stazione di Ascoli Piceno,42.8536,13.5743,AP,,1,,Europe/Rome,1
+83033,AQU,L'Aquila,Stazione di L'Aquila,42.3598,13.3995,AQ,,1,,Europe/Rome,1
+83034,ISE,Isernia,Stazione di Isernia,41.5889,14.2341,IS,,1,,Europe/Rome,1
+83035,CMP,Campobasso,Stazione di Campobasso,41.5630,14.6564,CB,,1,,Europe/Rome,1
+83036,BRD,Brindisi,Stazione di Brindisi,40.6283,17.9463,BR,,1,,Europe/Rome,1
+83037,TAR,Taranto,Stazione di Taranto,40.4644,17.2470,TA,,1,,Europe/Rome,1
+83038,MAT,Matera,Stazione di Matera,40.6663,16.6043,MT,,1,,Europe/Rome,1
+83039,POT,Potenza,Stazione di Potenza,40.6331,15.8059,PZ,,1,,Europe/Rome,1
+83040,CRO,Crotone,Stazione di Crotone,39.0810,17.1251,KR,,1,,Europe/Rome,1
+83041,CZS,Catanzaro,Stazione di Catanzaro,38.8814,16.5987,CZ,,1,,Europe/Rome,1
+83042,VBO,Vibo Valentia,Stazione di Vibo Valentia,38.6756,16.1022,VV,,1,,Europe/Rome,1
+83043,SAS,Sassari,Stazione di Sassari,40.7259,8.5594,SS,,1,,Europe/Rome,1
+83044,ORB,Oristano,Stazione di Oristano,39.9037,8.5916,OR,,1,,Europe/Rome,1
+83045,NUO,Nuoro,Stazione di Nuoro,40.3214,9.3309,NU,,1,,Europe/Rome,1
+83046,OLB,Olbia,Stazione di Olbia,40.9177,9.5034,OT,,1,,Europe/Rome,1
+83047,IGM,Iglesias,Stazione di Iglesias,39.3097,8.5378,CI,,1,,Europe/Rome,1
+83048,CAR,Carbonia,Stazione di Carbonia,39.1642,8.5228,CI,,1,,Europe/Rome,1
+83049,MDN,Modena,Stazione di Modena,44.6472,10.9264,MO,,1,,Europe/Rome,1
+83050,PAR,Parma,Stazione di Parma,44.8069,10.3279,PR,,1,,Europe/Rome,1
+83051,PIE,Piacenza,Stazione di Piacenza,45.0525,9.6925,PC,,1,,Europe/Rome,1
+83052,FER,Ferrara,Stazione di Ferrara,44.8479,11.6056,FE,,1,,Europe/Rome,1
+83053,RAV,Ravenna,Stazione di Ravenna,44.4184,12.1955,RA,,1,,Europe/Rome,1
+83054,FOL,Forlì,Stazione di Forlì,44.2226,12.0352,FC,,1,,Europe/Rome,1
+83055,RIM,Rimini,Stazione di Rimini,44.0678,12.5664,RN,,1,,Europe/Rome,1
+83056,BER,Bergamo,Stazione di Bergamo,45.6906,9.6741,BG,,1,,Europe/Rome,1
+83057,BRE,Brescia,Stazione di Brescia,45.5308,10.2127,BS,,1,,Europe/Rome,1
+83058,MAN,Mantova,Stazione di Mantova,45.1564,10.7914,MN,,1,,Europe/Rome,1
+83059,CRE,Cremona,Stazione di Cremona,45.1336,10.0422,CR,,1,,Europe/Rome,1
+83060,VAR,Varese,Stazione di Varese,45.8205,8.8249,VA,,1,,Europe/Rome,1
+83061,COM,Como,Stazione di Como,45.8081,9.0852,CO,,1,,Europe/Rome,1
+83062,LEC_LOM,Lecco,Stazione di Lecco,45.8559,9.3934,LC,,1,,Europe/Rome,1
+83063,SON,Sondrio,Stazione di Sondrio,46.1702,9.8740,SO,,1,,Europe/Rome,1
+83064,NOV,Novara,Stazione di Novara,45.4484,8.6178,NO,,1,,Europe/Rome,1
+83065,ALB,Alba,Stazione di Alba,44.7007,8.0355,CN,,1,,Europe/Rome,1
+83066,AST,Asti,Stazione di Asti,44.8998,8.2063,AT,,1,,Europe/Rome,1
+83067,CUN,Cuneo,Stazione di Cuneo,44.3841,7.5441,CN,,1,,Europe/Rome,1
+83068,BIE,Biella,Stazione di Biella,45.5650,8.0546,BI,,1,,Europe/Rome,1
+83069,VER_PIE,Vercelli,Stazione di Vercelli,45.3237,8.4150,VC,,1,,Europe/Rome,1
+83070,AOS,Aosta,Stazione di Aosta,45.7372,7.3154,AO,,1,,Europe/Rome,1
+83071,IMP,Imperia,Stazione di Imperia,43.8850,8.0307,IM,,1,,Europe/Rome,1
+83072,SAV,Savona,Stazione di Savona,44.3076,8.4814,SV,,1,,Europe/Rome,1
+83073,LAP,La Spezia Centrale,Stazione Centrale di La Spezia,44.1076,9.8235,SP,,1,,Europe/Rome,1
+83074,MAS,Massa,Stazione di Massa,44.0369,10.1414,MS,,1,,Europe/Rome,1
+83075,LUC,Lucca,Stazione di Lucca,43.8435,10.5029,LU,,1,,Europe/Rome,1
+83076,PIS,Pistoia,Stazione di Pistoia,43.9334,10.9176,PT,,1,,Europe/Rome,1
+83077,PRA,Prato Centrale,Stazione Centrale di Prato,43.8773,11.1027,PO,,1,,Europe/Rome,1
+83078,EMP,Empoli,Stazione di Empoli,43.7195,10.9461,FI,,1,,Europe/Rome,1
+83079,SIE,Siena,Stazione di Siena,43.3188,11.3307,SI,,1,,Europe/Rome,1
+83080,GRO,Grosseto,Stazione di Grosseto,42.7595,11.1091,GR,,1,,Europe/Rome,1

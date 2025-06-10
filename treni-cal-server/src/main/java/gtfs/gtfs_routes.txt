@@ -1,0 +1,81 @@
+route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
+FR_AV01,TRENITALIA_AV,Frecciarossa,Milano - Roma - Napoli,Servizio alta velocità,1,https://www.trenitalia.com,E60012,FFFFFF
+FR_AV02,TRENITALIA_AV,Frecciarossa,Torino - Milano - Roma - Napoli - Salerno,Servizio alta velocità,1,https://www.trenitalia.com,E60012,FFFFFF
+FR_AV03,TRENITALIA_AV,Frecciarossa,Venezia - Bologna - Firenze - Roma,Servizio alta velocità,1,https://www.trenitalia.com,E60012,FFFFFF
+FA_AV01,TRENITALIA_AV,Frecciargento,Roma - Bari - Lecce,Servizio alta velocità,1,https://www.trenitalia.com,C0C0C0,000000
+FA_AV02,TRENITALIA_AV,Frecciargento,Roma - Pescara - Bari,Servizio alta velocità,1,https://www.trenitalia.com,C0C0C0,000000
+FB_AV01,TRENITALIA_AV,Frecciabianca,Milano - Genova,Servizio alta velocità,1,https://www.trenitalia.com,FFFFFF,000000
+FB_AV02,TRENITALIA_AV,Frecciabianca,Milano - Venezia - Trieste,Servizio alta velocità,1,https://www.trenitalia.com,FFFFFF,000000
+IC_001,TRENITALIA,IC,Milano - Roma,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_002,TRENITALIA,IC,Torino - Roma,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_003,TRENITALIA,IC,Roma - Napoli - Bari,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_004,TRENITALIA,IC,Bologna - Ancona - Pescara - Bari,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_005,TRENITALIA,IC,Roma - Reggio Calabria,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_006,TRENITALIA,IC,Milano - Genova,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_007,TRENITALIA,IC,Venezia - Roma,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+IC_008,TRENITALIA,IC,Bologna - Firenze - Roma,Intercity,1,https://www.trenitalia.com,0066CC,FFFFFF
+ICN_001,TRENITALIA,ICN,Milano - Roma - Napoli - Palermo,Intercity Notte,1,https://www.trenitalia.com,000080,FFFFFF
+ICN_002,TRENITALIA,ICN,Torino - Roma - Bari - Lecce,Intercity Notte,1,https://www.trenitalia.com,000080,FFFFFF
+REG_LAZ01,TRENITALIA,FL1,Roma - Fiumicino Aeroporto,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ02,TRENITALIA,FL2,Roma - Viterbo,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ03,TRENITALIA,FL3,Roma - Bracciano - Viterbo,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ04,TRENITALIA,FL4,Roma - Castelli Romani,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ05,TRENITALIA,FL5,Roma - Civitavecchia,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ06,TRENITALIA,FL6,Roma - Frosinone - Cassino,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ07,TRENITALIA,FL7,Roma - Formia - Napoli,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LAZ08,TRENITALIA,FL8,Roma - Nettuno,Regionale Lazio,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_LOM01,TRENORD,S1,Saronno - Milano - Lodi,Servizio Suburbano,1,https://www.trenord.it,0066FF,FFFFFF
+REG_LOM02,TRENORD,S2,Milano Rogoredo - Milano Bovisa,Servizio Suburbano,1,https://www.trenord.it,00AA00,FFFFFF
+REG_LOM03,TRENORD,S3,Milano Cadorna - Saronno,Servizio Suburbano,1,https://www.trenord.it,FF6600,FFFFFF
+REG_LOM04,TRENORD,S4,Milano Cadorna - Camnago,Servizio Suburbano,1,https://www.trenord.it,996633,FFFFFF
+REG_LOM05,TRENORD,S5,Varese - Milano - Treviglio,Servizio Suburbano,1,https://www.trenord.it,6600CC,FFFFFF
+REG_LOM06,TRENORD,S6,Novara - Milano - Treviglio,Servizio Suburbano,1,https://www.trenord.it,FF0066,FFFFFF
+REG_LOM07,TRENORD,S7,Milano P.G. - Lecco,Servizio Suburbano,1,https://www.trenord.it,00CCCC,FFFFFF
+REG_LOM08,TRENORD,S8,Milano - Lecco - Sondrio,Servizio Suburbano,1,https://www.trenord.it,FFAA00,FFFFFF
+REG_LOM09,TRENORD,S9,Saronno - Seregno - Bergamo,Servizio Suburbano,1,https://www.trenord.it,CC0000,FFFFFF
+REG_LOM10,TRENORD,S10,Milano Rogoredo - Brescia,Servizio Suburbano,1,https://www.trenord.it,9900CC,FFFFFF
+REG_LOM11,TRENORD,S11,Milano P.G. - Como - Chiasso,Servizio Suburbano,1,https://www.trenord.it,666600,FFFFFF
+REG_LOM12,TRENORD,S12,Milano Bovisa - Cormano,Servizio Suburbano,1,https://www.trenord.it,CCAA00,FFFFFF
+REG_LOM13,TRENORD,S13,Milano Bovisa - Garbagnate,Servizio Suburbano,1,https://www.trenord.it,0099CC,FFFFFF
+REG_PIE01,TRENITALIA,SFM1,Torino - Chieri - Asti,Servizio Ferroviario Metropolitano,1,https://www.trenitalia.com,0066FF,FFFFFF
+REG_PIE02,TRENITALIA,SFM2,Torino - Pinerolo,Servizio Ferroviario Metropolitano,1,https://www.trenitalia.com,00AA00,FFFFFF
+REG_PIE03,TRENITALIA,SFM3,Torino - Ivrea - Aosta,Servizio Ferroviario Metropolitano,1,https://www.trenitalia.com,FF6600,FFFFFF
+REG_PIE04,TRENITALIA,SFM4,Torino - Ceres,Servizio Ferroviario Metropolitano,1,https://www.trenitalia.com,996633,FFFFFF
+REG_LIG01,TRENITALIA,REG,Genova - La Spezia,Regionale Liguria,1,https://www.trenitalia.com,008800,FFFFFF
+REG_LIG02,TRENITALIA,REG,Genova - Savona - Ventimiglia,Regionale Liguria,1,https://www.trenitalia.com,008800,FFFFFF
+REG_TOS01,TRENITALIA,REG,Firenze - Pisa - Livorno,Regionale Toscana,1,https://www.trenitalia.com,AA4400,FFFFFF
+REG_TOS02,TRENITALIA,REG,Firenze - Arezzo - Chiusi,Regionale Toscana,1,https://www.trenitalia.com,AA4400,FFFFFF
+REG_TOS03,TRENITALIA,REG,Firenze - Empoli - Siena,Regionale Toscana,1,https://www.trenitalia.com,AA4400,FFFFFF
+REG_EMR01,TRENITALIA,REG,Bologna - Rimini,Regionale Emilia-Romagna,1,https://www.trenitalia.com,CC6600,FFFFFF
+REG_EMR02,TRENITALIA,REG,Bologna - Modena - Parma - Piacenza,Regionale Emilia-Romagna,1,https://www.trenitalia.com,CC6600,FFFFFF
+REG_EMR03,TRENITALIA,REG,Bologna - Ferrara - Ravenna,Regionale Emilia-Romagna,1,https://www.trenitalia.com,CC6600,FFFFFF
+REG_VEN01,TRENITALIA,REG,Venezia - Padova - Verona,Regionale Veneto,1,https://www.trenitalia.com,0088AA,FFFFFF
+REG_VEN02,TRENITALIA,REG,Venezia - Udine - Trieste,Regionale Veneto,1,https://www.trenitalia.com,0088AA,FFFFFF
+REG_VEN03,TRENITALIA,REG,Verona - Trento - Bolzano,Regionale Veneto,1,https://www.trenitalia.com,0088AA,FFFFFF
+REG_UMB01,TRENITALIA,REG,Roma - Orte - Perugia,Regionale Umbria,1,https://www.trenitalia.com,886600,FFFFFF
+REG_UMB02,TRENITALIA,REG,Perugia - Foligno - Terni,Regionale Umbria,1,https://www.trenitalia.com,886600,FFFFFF
+REG_MAR01,TRENITALIA,REG,Ancona - Pescara,Regionale Marche,1,https://www.trenitalia.com,0066AA,FFFFFF
+REG_MAR02,TRENITALIA,REG,Bologna - Rimini - Ancona,Regionale Marche,1,https://www.trenitalia.com,0066AA,FFFFFF
+REG_ABR01,TRENITALIA,REG,Roma - L'Aquila - Pescara,Regionale Abruzzo,1,https://www.trenitalia.com,664400,FFFFFF
+REG_ABR02,TRENITALIA,REG,Pescara - Foggia,Regionale Abruzzo,1,https://www.trenitalia.com,664400,FFFFFF
+REG_MOL01,TRENITALIA,REG,Roma - Campobasso - Termoli,Regionale Molise,1,https://www.trenitalia.com,775500,FFFFFF
+REG_CAM01,TRENITALIA,REG,Napoli - Salerno - Battipaglia,Regionale Campania,1,https://www.trenitalia.com,004488,FFFFFF
+REG_CAM02,TRENITALIA,REG,Napoli - Benevento - Foggia,Regionale Campania,1,https://www.trenitalia.com,004488,FFFFFF
+REG_CAM03,TRENITALIA,REG,Napoli - Caserta - Roma,Regionale Campania,1,https://www.trenitalia.com,004488,FFFFFF
+REG_PUG01,TRENITALIA,REG,Bari - Foggia,Regionale Puglia,1,https://www.trenitalia.com,886644,FFFFFF
+REG_PUG02,TRENITALIA,REG,Bari - Brindisi - Lecce,Regionale Puglia,1,https://www.trenitalia.com,886644,FFFFFF
+REG_PUG03,TRENITALIA,REG,Bari - Taranto,Regionale Puglia,1,https://www.trenitalia.com,886644,FFFFFF
+REG_BAS01,TRENITALIA,REG,Bari - Potenza - Metaponto,Regionale Basilicata,1,https://www.trenitalia.com,664422,FFFFFF
+REG_CAL01,TRENITALIA,REG,Cosenza - Paola - Sapri,Regionale Calabria,1,https://www.trenitalia.com,448866,FFFFFF
+REG_CAL02,TRENITALIA,REG,Cosenza - Sibari - Metaponto,Regionale Calabria,1,https://www.trenitalia.com,448866,FFFFFF
+REG_CAL03,TRENITALIA,REG,Cosenza - Catanzaro - Reggio Calabria,Regionale Calabria,1,https://www.trenitalia.com,448866,FFFFFF
+REG_SIC01,TRENITALIA,REG,Palermo - Messina,Regionale Sicilia,1,https://www.trenitalia.com,AA6622,FFFFFF
+REG_SIC02,TRENITALIA,REG,Palermo - Agrigento - Catania,Regionale Sicilia,1,https://www.trenitalia.com,AA6622,FFFFFF
+REG_SIC03,TRENITALIA,REG,Catania - Siracusa,Regionale Sicilia,1,https://www.trenitalia.com,AA6622,FFFFFF
+REG_SIC04,TRENITALIA,REG,Messina - Catania - Siracusa,Regionale Sicilia,1,https://www.trenitalia.com,AA6622,FFFFFF
+REG_SAR01,TRENITALIA,REG,Cagliari - Sassari,Regionale Sardegna,1,https://www.trenitalia.com,668844,FFFFFF
+REG_SAR02,TRENITALIA,REG,Cagliari - Carbonia - Iglesias,Regionale Sardegna,1,https://www.trenitalia.com,668844,FFFFFF
+REG_SAR03,TRENITALIA,REG,Sassari - Olbia,Regionale Sardegna,1,https://www.trenitalia.com,668844,FFFFFF
+ITALO_01,ITALO,Italo,Milano - Roma - Napoli,Alta Velocità Italo,1,https://www.italotreno.it,FFD700,000000
+ITALO_02,ITALO,Italo,Torino - Milano - Roma - Napoli,Alta Velocità Italo,1,https://www.italotreno.it,FFD700,000000
+ITALO_03,ITALO,Italo,Venezia - Bologna - Firenze - Roma,Alta Velocità Italo,1,https://www.italotreno.it,FFD700,000000

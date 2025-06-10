@@ -70,7 +70,7 @@ public class MainApp extends Application{
         trainTableView.setItems(trainData);
 
         // Pannello Azioni
-        HBox actionBox = new HBox(10);
+        HBox actionBox = createActionBox();
         actionBox.setPadding(new Insets(10));
         Button purchaseButton = new Button("Acquista Selezionato");
         ticketIdForSubscriptionField = new TextField();
@@ -107,6 +107,38 @@ public class MainApp extends Application{
                 e.printStackTrace();
             }
         });
+    }
+
+    private HBox createActionBox() {
+        HBox actionBox = new HBox(10);
+        actionBox.setPadding(new Insets(10));
+
+        Button purchaseButton = new Button("Acquista Selezionato");
+
+        // NUOVO PULSANTE per lo stato in tempo reale
+        Button realTimeButton = new Button("Stato Real-time");
+
+        actionBox.getChildren().addAll(purchaseButton, realTimeButton);
+
+        purchaseButton.setOnAction(e -> handlePurchaseAction());
+
+        // Handler per il nuovo pulsante
+        realTimeButton.setOnAction(e -> {
+            TrainDisplay selectedTrain = trainTableView.getSelectionModel().getSelectedItem();
+            if (selectedTrain != null) {
+                new Thread(() -> {
+                    // CORREZIONE: Ora possiamo usare direttamente getTrainNumber(), perché contiene il numero corretto.
+                    String trainNumber = selectedTrain.getTrainNumber();
+
+                    String realTimeInfo = grpcService.getRealTimeTrainInfo(trainNumber);
+                    Platform.runLater(() -> showAlert("Stato Treno", realTimeInfo));
+                }).start();
+            } else {
+                showAlert("Errore", "Seleziona un treno per vederne lo stato.");
+            }
+        });
+
+        return actionBox;
     }
 
     private void handleSearchAction() {

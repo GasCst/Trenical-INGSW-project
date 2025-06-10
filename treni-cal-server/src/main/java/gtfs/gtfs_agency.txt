@@ -1,0 +1,6 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone
+TRENITALIA,Trenitalia S.p.A.,https://www.trenitalia.com,Europe/Rome,it,892021
+TRENORD,Trenord S.r.l.,https://www.trenord.it,Europe/Rome,it,02-85114040
+TPER,Trenitalia Tper,https://www.tper.it,Europe/Rome,it,051-290290
+TRENITALIA_AV,Trenitalia Alta Velocità,https://www.trenitalia.com,Europe/Rome,it,892021
+ITALO,Nuovo Trasporto Viaggiatori,https://www.italotreno.it,Europe/Rome,it,060708

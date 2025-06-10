@@ -4,6 +4,7 @@ this_dir = File.expand_path(File.dirname(__FILE__))
 $LOAD_PATH.unshift(this_dir) unless $LOAD_PATH.include?(this_dir)
 
 require 'grpc'
+require 'sqlite3'
 require 'treni_pb'
 require 'viaggiatreno_service_pb'
 require 'viaggiatreno_service_services_pb'
@@ -85,11 +86,22 @@ end
 class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Service
 
   begin
-    STATIONS_LIST = YAML.load_file(File.join(__dir__, 'stations.yml'))
-    puts "Loaded #{STATIONS_LIST.size} stations from stations.yml"
-  rescue Errno::ENOENT
-    puts "FATAL: stations.yml not found. Please create it."
-    STATIONS_LIST = []
+    # Calcoliamo il percorso alla root del progetto partendo da questo script
+    # Questo script si trova in: .../TreniCal/treni-cal-proto/src/main/proto/ruby_viaggiatreno_microservizio/
+    # Dobbiamo salire di 5 livelli per arrivare a .../TreniCal/
+    project_root = File.expand_path("../../../../../", __dir__)
+    db_path = File.join(project_root, "trenical.db")
+
+    unless File.exist?(db_path)
+      raise "Database file not found at expected path: #{db_path}. Please run GTFSImporter first."
+    end
+
+    DB = SQLite3::Database.new(db_path)
+    DB.results_as_hash = true
+    puts "Connessione a SQLite (#{db_path}) stabilita."
+  rescue SQLite3::Exception, RuntimeError => e
+    puts "FATAL: Impossibile connettersi a SQLite: #{e}"
+    exit 1
   end
 
 
@@ -97,25 +109,19 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
     search_query = request.search_query.downcase
     puts "Received SearchStations request with query: '#{search_query}'"
 
-    # Se la ricerca è vuota, restituisci tutte le stazioni
-    if search_query.empty?
-      filtered_stations_data = STATIONS_LIST
-    else
-      # Filtra la lista di stazioni in memoria
-      filtered_stations_data = STATIONS_LIST.select do |station|
-        station['name'].downcase.include?(search_query)
-      end
+    # La query SQL per cercare le stazioni
+    sql = "SELECT stop_id, stop_name FROM stations WHERE LOWER(stop_name) LIKE ? OR LOWER(stop_code) LIKE ? ORDER BY stop_name LIMIT 20"
+
+    # Add wildcards for partial search
+    search_pattern = "%#{search_query}%"
+    results = DB.execute(sql, search_pattern, search_pattern)
+
+    puts "Found #{results.length} matching stations in SQLite DB."
+
+    proto_stations = results.map do |row|
+      ::Proto::Station.new(id: row['stop_id'], name: row['stop_name'])
     end
 
-    puts "Found #{filtered_stations_data.size} matching stations."
-
-    # Crea gli oggetti Station del protobuf
-    proto_stations = filtered_stations_data.map do |station_hash|
-      # NOTA: Assicurati che il namespace qui sia corretto per il tuo proto
-      ::Proto::Station.new(id: station_hash['id'], name: station_hash['name'])
-    end
-
-    # Restituisce la risposta
     ::Proto::StationListResponse.new(stations: proto_stations)
   end
 
@@ -131,6 +137,9 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
     )
 
     begin
+      # First, try to find the train in our GTFS database to get more context
+      train_info = find_train_in_gtfs(train_number_str)
+
       vt_train = Train.new(train_number_str)
 
       train_found = false
@@ -149,8 +158,16 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
         response.found = true
 
         response.train_category = vt_train.train_name.to_s.split.first || ""
-        response.origin_station = first_available_method_to_s(vt_train, [:origin_station, :departing_station])
-        response.destination_station = first_available_method_to_s(vt_train, [:destination_station, :arriving_station])
+
+        # Use GTFS info if available, otherwise fall back to Viaggiatreno data
+        if train_info
+          response.origin_station = train_info['origin_station'] || first_available_method_to_s(vt_train, [:origin_station, :departing_station])
+          response.destination_station = train_info['destination_station'] || first_available_method_to_s(vt_train, [:destination_station, :arriving_station])
+        else
+          response.origin_station = first_available_method_to_s(vt_train, [:origin_station, :departing_station])
+          response.destination_station = first_available_method_to_s(vt_train, [:destination_station, :arriving_station])
+        end
+
         response.scheduled_departure_time = first_available_method_to_s(vt_train, [:scheduled_departure_time])
         response.scheduled_arrival_time = first_available_method_to_s(vt_train, [:scheduled_arrival_time])
         response.actual_departure_time = first_available_method_to_s(vt_train, [:actual_departure_time])
@@ -191,6 +208,37 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
   end
 
   private
+
+  def find_train_in_gtfs(train_number)
+    # Try to find train information in our GTFS database
+    # Look for trips with matching trip_short_name containing the train number
+    sql = "SELECT DISTINCT
+             t.trip_short_name,
+             r.route_short_name,
+             r.route_long_name,
+             dep_st.stop_name as origin_station,
+             arr_st.stop_name as destination_station,
+             t.trip_headsign
+           FROM trips t
+           JOIN routes r ON t.route_id = r.route_id
+           JOIN stop_times dep ON t.trip_id = dep.trip_id
+           JOIN stop_times arr ON t.trip_id = arr.trip_id
+           JOIN stations dep_st ON dep.stop_id = dep_st.stop_id
+           JOIN stations arr_st ON arr.stop_id = arr_st.stop_id
+           WHERE t.trip_short_name LIKE ?
+           AND dep.stop_sequence = (SELECT MIN(stop_sequence) FROM stop_times WHERE trip_id = t.trip_id)
+           AND arr.stop_sequence = (SELECT MAX(stop_sequence) FROM stop_times WHERE trip_id = t.trip_id)
+           LIMIT 1"
+
+    begin
+      results = DB.execute(sql, "%#{train_number}%")
+      return results.first if results && !results.empty?
+    rescue SQLite3::Exception => e
+      puts "Error querying GTFS database: #{e.message}"
+    end
+
+    nil
+  end
 
   def first_available_method_to_s(object, methods_to_try)
     methods_to_try.each do |method_sym|

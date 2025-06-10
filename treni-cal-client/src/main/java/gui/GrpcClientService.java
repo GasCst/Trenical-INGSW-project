@@ -2,6 +2,7 @@ package gui;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import proto.*;
 
@@ -28,27 +29,20 @@ public class GrpcClientService {
     }
 
     public List<Station> searchStations(String query) {
-        System.out.println("[Client GUI] Searching for stations with query: '" + query + "'");
         try {
             SearchStationRequest request = SearchStationRequest.newBuilder().setSearchQuery(query).build();
-            StationListResponse response = trainServiceBlockingStub.searchStations(request);
-            System.out.println("[Client GUI] Received " + response.getStationsCount() + " stations.");
-            return response.getStationsList();
+            return trainServiceBlockingStub.searchStations(request).getStationsList();
         } catch (Exception e) {
-            System.err.println("[Client GUI] Error searching stations: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>(); // Ritorna lista vuota in caso di errore
+            System.err.println("Errore ricerca stazioni: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 
     public List<TrainDisplay> searchTrains(Station from, Station to) {
-        SearchTrainRequest request = SearchTrainRequest.newBuilder()
-                .setDepartureStation(from)
-                .setArrivalStation(to)
-                .build();
+        SearchTrainRequest request = SearchTrainRequest.newBuilder().setDepartureStation(from).setArrivalStation(to).build();
         List<TrainDisplay> displayList = new ArrayList<>();
         try {
-            SearchTrainResponse response = trainServiceBlockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).searchTrains(request);
+            SearchTrainResponse response = trainServiceBlockingStub.searchTrains(request);
             for (Train train : response.getAvailableTrainsList()) {
                 displayList.add(new TrainDisplay(
                         train.getId(), train.getTrainNumber(), train.getDepartureStation().getName(),
@@ -62,6 +56,30 @@ public class GrpcClientService {
             e.printStackTrace();
         }
         return displayList;
+    }
+
+    public String getRealTimeTrainInfo(String trainNumber) {
+        try {
+            TrainInfoRequest request = TrainInfoRequest.newBuilder().setTrainId(trainNumber).build();
+
+            // 1. La chiamata ora restituisce un Iterator, non un singolo oggetto
+            java.util.Iterator<TrainRealTimeUpdate> responseIterator = trainServiceBlockingStub.getTrainRealTimeInfo(request);
+
+            // 2. Controlliamo se c'è almeno una risposta nello stream
+            if (responseIterator.hasNext()) {
+                // 3. Prendiamo la prima (e unica) risposta
+                TrainRealTimeUpdate response = responseIterator.next();
+                return "Info per Treno " + response.getTrainId() + ": " + response.getStatusUpdate();
+            } else {
+                // Caso in cui il server chiude lo stream senza inviare dati
+                return "Nessun aggiornamento in tempo reale ricevuto per il treno " + trainNumber;
+            }
+
+        } catch (StatusRuntimeException e) {
+            return "Errore dal servizio: " + e.getStatus().getDescription();
+        } catch (Exception e) {
+            return "Errore imprevisto: " + e.getMessage();
+        }
     }
 
     public PurchaseTicketResponse purchaseTicket(String trainId, String serviceClass, int numTickets) {
