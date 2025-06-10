@@ -2,11 +2,10 @@ syntax = "proto3";
 
 package proto;
 
-option java_multiple_files = true;
-option java_package = "proto";
-option java_outer_classname = "TreniProto";
 
 import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
 
 // -------- SERVIZI --------
 
@@ -14,7 +13,8 @@ import "google/protobuf/timestamp.proto";
 service TreniCal {
   rpc SearchTrains(SearchTrainRequest) returns (SearchTrainResponse);
   rpc GetTrainRealTimeInfo(TrainInfoRequest) returns (stream TrainRealTimeUpdate);
-  rpc GetAvailableStations(EmptyRequest) returns (StationListResponse);
+  rpc SearchStations(SearchStationRequest) returns (StationListResponse);
+
 }
 
 // servizio per comprare-modificare-richiesta  di biglietti( Ticket )
@@ -68,9 +68,8 @@ message Ticket {
 message SearchTrainRequest {
   Station departure_station = 1;
   Station arrival_station = 2;
-  TravelDate travel_date = 3;
-  string preferred_train_type = 4;
-  string preferred_service_class = 5;
+  string preferred_train_type = 3;
+  string preferred_service_class = 4;
 }
 
 message SearchTrainResponse {
@@ -144,5 +143,9 @@ message EmptyRequest {}
 
 message StationListResponse{
   repeated Station stations = 1;
+}
+
+message SearchStationRequest{
+  string search_query = 1;
 }
 

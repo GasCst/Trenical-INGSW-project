@@ -1,138 +1,102 @@
 package com.trenical.services;
 
+
+import com.trenical.rubyViaggiatreno.RubyViaggiatrenoClient;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import proto.*;
-import com.trenical.database.TrainDatabase;
-import com.trenical.database.TicketDatabase;
-import com.google.protobuf.Timestamp;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase{
-
-    private final TrainDatabase trainDatabase = TrainDatabase.getInstance();
-    private final TicketDatabase ticketDatabase = TicketDatabase.getInstance();
-
-    @Override
-    public void searchTrains (SearchTrainRequest request, StreamObserver<SearchTrainResponse> responseObserver){
-        //DEBUG PRINT
-        System.out.println("[Server] Received SearchTrains request for: " +
-                request.getDepartureStation().getName() +
-                " to " + request.getArrivalStation().getName() +
-                " on " + request.getTravelDate().getYear() + "-" +
-                request.getTravelDate().getMonth() + "-" +
-                request.getTravelDate().getDay());
+import ruby_viaggiatreno_microservizio.TrainStatusResponse;
 
 
-        LocalDate searchDate = LocalDate.of(request.getTravelDate().getYear(),
-                request.getTravelDate().getMonth(),
-                request.getTravelDate().getDay());
+public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase {
 
-        List<Train> allTrains = trainDatabase.getAllTrains();
 
-        // uso lo stream di java per lavorare con la collezione di dati "allTrains"
-        List<Train> foundTrains = allTrains.stream()
-                .filter(train -> train.getDepartureStation().getId().equals(request.getDepartureStation().getId()) &&
-                        train.getArrivalStation().getId().equals(request.getArrivalStation().getId()))
-                .filter(train -> {
-                    Instant trainDepartureInstant = Instant.ofEpochSecond(train.getDepartureTime().getSeconds(), train.getDepartureTime().getNanos());
-                    LocalDate trainDepartureDate = LocalDate.ofInstant(trainDepartureInstant, ZoneId.systemDefault());
-                    return trainDepartureDate.equals(searchDate);
-                })
-                .filter(train -> request.getPreferredTrainType().isEmpty() || train.getTrainType().equalsIgnoreCase(request.getPreferredTrainType()))
-                .filter(train -> request.getPreferredServiceClass().isEmpty() || train.getServiceClass().equalsIgnoreCase(request.getPreferredServiceClass()))
+    private final RubyViaggiatrenoClient rubyClient;
 
-                .map(train -> {
-                    // Disponibilità dei posti simulata, in realtà non si fa così.
-                    // In un sistema reale, in teoria bisognerebbe contare il numero di biglietti venduti per questo treno e anche per la classe.
-                    int availableSeats = trainDatabase.getAvailableSeats(train.getId(), train.getServiceClass());
-                    return train.toBuilder().setAvailableSeats(availableSeats).build();
-                })
-                .filter(train -> train.getAvailableSeats() > 0)
-                .collect(Collectors.toList());
-
-        // costruisco il messaggio di risposta contenente la lista
-        // dei treni disponibili,
-        // lo invio al client, e poi chiudo la comunicazione,
-        // ( siccome in questo caso sto facendo una chiamata unary).
-
-        SearchTrainResponse response = SearchTrainResponse.newBuilder()
-                .addAllAvailableTrains(foundTrains)
-                .build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted(); // chiamata unary in questo caso, .onCompleted serve per chiudere la comunicazione correttamente.
-
+    public TrainServiceImpl(RubyViaggiatrenoClient rubyClient) {
+        this.rubyClient = rubyClient;
     }
 
-
     @Override
-    public void getTrainRealTimeInfo(TrainInfoRequest request, StreamObserver<TrainRealTimeUpdate> responseObserver) {
-        String trainId = request.getTrainId();
-        System.out.println("[Server] Received GetTrainRealTimeInfo request for train ID: " + trainId);
+    public void searchStations(SearchStationRequest request, StreamObserver<StationListResponse> responseObserver) {
+        String query = request.getSearchQuery();
+        System.out.println("[Java Server] Ricevuta richiesta SearchStations. Query: '" + query + "'. Inoltro a Ruby...");
 
-        for (int i = 0; i < 5; i++) { // Send a few updates
-            try {
-                Thread.sleep(2000); // simulo un delay tra un update e un altro
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                responseObserver.onError(io.grpc.Status.CANCELLED.withDescription("Stream interrupted").asRuntimeException());
-                return;
-            }
-            if (Thread.currentThread().isInterrupted()) {
-                responseObserver.onError(io.grpc.Status.CANCELLED.withDescription("Stream interrupted by client").asRuntimeException());
-                return;
-            }
+        try {
+            // Chiama il client Ruby per ottenere la lista filtrata
+            ruby_viaggiatreno_microservizio.StationListResponse rubyResponse = rubyClient.searchStations(query);
 
+            System.out.println("[Java Server] Ricevute " + rubyResponse.getStationsCount() + " stazioni da Ruby. Le traduco per il client Java.");
 
-            Train train = trainDatabase.getTrainById(trainId);
-            if (train == null) {
-                responseObserver.onError(io.grpc.Status.NOT_FOUND.withDescription("Train not found").asRuntimeException());
-                return;
+            proto.StationListResponse.Builder javaResponseBuilder = proto.StationListResponse.newBuilder();
+
+            for (ruby_viaggiatreno_microservizio.Station rubyStation : rubyResponse.getStationsList()) {
+                // Per ogni stazione di tipo Ruby, ne creo una nuova di tipo Java
+                proto.Station javaStation = proto.Station.newBuilder()
+                        .setId(rubyStation.getId())
+                        .setName(rubyStation.getName())
+                        .build();
+                javaResponseBuilder.addStations(javaStation);
             }
 
-            // Simulo dei Cambiamenti
-            Timestamp updatedArrivalTime = Timestamp.newBuilder()
-                    .setSeconds(train.getArrivalTime().getSeconds() + (i * 60)) // ritardo di i minuti
-                    .build();
-            String platform = (i % 2 == 0) ? "5" : "5B";
-
-            TrainRealTimeUpdate update = TrainRealTimeUpdate.newBuilder()
-                    .setTrainId(trainId)
-                    .setUpdatedArrivalTime(updatedArrivalTime)
-                    .setPlatform(platform)
-                    .setStatusUpdate("Train status update " + (i + 1) + ": Delayed, new platform " + platform)
-                    .build();
-            responseObserver.onNext(update);
-        }
-
-        responseObserver.onCompleted();
-    }
-
-
-    @Override
-    public void getAvailableStations( EmptyRequest request, StreamObserver<StationListResponse> responseObserver){
-        System.out.println("[Server] Received GetAvailableStations request");
-        try{
-            List<Station> stations = trainDatabase.getAllUniqueStations();
-            StationListResponse response = StationListResponse.newBuilder()
-                    .addAllStations(stations)
-                    .build();
-            responseObserver.onNext(response);
+            responseObserver.onNext(javaResponseBuilder.build());
             responseObserver.onCompleted();
-        } catch (Exception e ){
-            System.err.println("[Server] Error getting available stations: " + e.getMessage());
-            e.printStackTrace();
-            responseObserver.onError(io.grpc.Status.INTERNAL
-                    .withDescription("Error fetching stations: "+ e.getMessage())
+
+        } catch (Exception e) {
+            System.err.println("[Java Server] Fallita comunicazione con il servizio Ruby: " + e.getMessage());
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Errore interno durante la ricerca delle stazioni.")
+                    .withCause(e)
                     .asRuntimeException());
         }
     }
 
+    @Override
+    public void getTrainRealTimeInfo(TrainInfoRequest request, StreamObserver<TrainRealTimeUpdate> responseObserver) {
+        // NOTA: Assumiamo che l'ID passato dal client (es. "TR001") debba essere mappato
+        // a un numero di treno reale (es. "9600"). Per ora, usiamo l'ID direttamente.
+        String trainNumber = request.getTrainId();
+        System.out.println("[Server] Ricevuta richiesta GetTrainRealTimeInfo per il treno: " + trainNumber);
 
+        try {
+            // Chiama il microservizio Ruby tramite il nostro client Java
+            TrainStatusResponse rubyResponse = rubyClient.getTrainStatus(trainNumber);
+
+            if (rubyResponse.getFound()) {
+                // Mappa la risposta dal servizio Ruby al messaggio di risposta per il nostro client JavaFX
+                String statusUpdateMessage = String.format("%s. Ritardo: %d min. Ultima rilevazione: %s",
+                        rubyResponse.getTrainStatusDescription(),
+                        rubyResponse.getDelayMinutes(),
+                        rubyResponse.getLastDetectedStation());
+
+                TrainRealTimeUpdate update = TrainRealTimeUpdate.newBuilder()
+                        .setTrainId(rubyResponse.getTrainNumber())
+                        .setStatusUpdate(statusUpdateMessage)
+                        // Potresti aggiungere binario e orario di arrivo aggiornato se disponibili
+                        // .setPlatform(...)
+                        .build();
+
+                responseObserver.onNext(update);
+                responseObserver.onCompleted();
+            } else {
+                // Treno non trovato dal servizio Ruby, informa il client
+                responseObserver.onError(io.grpc.Status.NOT_FOUND
+                        .withDescription("Treno non trovato o errore dal servizio Viaggiatreno: " + rubyResponse.getErrorMessage())
+                        .asRuntimeException());
+            }
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Fallita la comunicazione con il servizio dati real-time: " + e.getMessage())
+                    .asRuntimeException());
+        }
+    }
+
+    @Override
+    public void searchTrains(SearchTrainRequest request, StreamObserver<SearchTrainResponse> responseObserver) {
+        System.out.println("Richiesta searchTrains ricevuta per: " + request.getDepartureStation().getName() + " -> " + request.getArrivalStation().getName());
+
+        SearchTrainResponse response = SearchTrainResponse.newBuilder().build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
 }

@@ -2,12 +2,16 @@ syntax = "proto3";
 
 package proto.ruby_viaggiatreno_microservizio;
 
+
+
 option java_multiple_files = true;
 option java_package = "ruby_viaggiatreno_microservizio";
 option ruby_package = "Trenical::RubyViaggiatreno";
 
 service ViaggiatrenoService {
   rpc GetTrainRealtimeStatus(TrainStatusRequest) returns (TrainStatusResponse);
+
+  rpc SearchStations(SearchStationRequest) returns (StationListResponse);
 }
 
 
@@ -31,6 +35,20 @@ message TrainStatusResponse {
   bool found = 13;
   string error_message = 14;
 }
+
+message StationListResponse {
+  repeated Station stations = 1;
+}
+
+message Station {
+  string id = 1;
+  string name = 2;
+}
+
+message SearchStationRequest {
+  string search_query = 1;
+}
+
 
 
 // Dati delle stazioni per estendere il servizio

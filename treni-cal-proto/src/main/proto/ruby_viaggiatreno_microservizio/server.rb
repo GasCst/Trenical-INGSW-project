@@ -1,15 +1,16 @@
 #!/usr/bin/env ruby
 
 this_dir = File.expand_path(File.dirname(__FILE__))
-lib_dir = File.join(this_dir, 'lib')
-$LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
+$LOAD_PATH.unshift(this_dir) unless $LOAD_PATH.include?(this_dir)
 
 require 'grpc'
-require_relative 'viaggiatreno_service_pb'
-require_relative 'viaggiatreno_service_services_pb'
+require 'treni_pb'
+require 'viaggiatreno_service_pb'
+require 'viaggiatreno_service_services_pb'
 require 'open-uri'
 require 'net/http'
 require 'nokogiri'
+require 'yaml'
 
 # --- Start of Kernel.open Monkey Patch ---
 # This patch intercepts HTTP calls from the gem and uses Net::HTTP,
@@ -82,6 +83,44 @@ rescue LoadError => e
 end
 
 class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Service
+
+  begin
+    STATIONS_LIST = YAML.load_file(File.join(__dir__, 'stations.yml'))
+    puts "Loaded #{STATIONS_LIST.size} stations from stations.yml"
+  rescue Errno::ENOENT
+    puts "FATAL: stations.yml not found. Please create it."
+    STATIONS_LIST = []
+  end
+
+
+  def search_stations(request, _call)
+    search_query = request.search_query.downcase
+    puts "Received SearchStations request with query: '#{search_query}'"
+
+    # Se la ricerca è vuota, restituisci tutte le stazioni
+    if search_query.empty?
+      filtered_stations_data = STATIONS_LIST
+    else
+      # Filtra la lista di stazioni in memoria
+      filtered_stations_data = STATIONS_LIST.select do |station|
+        station['name'].downcase.include?(search_query)
+      end
+    end
+
+    puts "Found #{filtered_stations_data.size} matching stations."
+
+    # Crea gli oggetti Station del protobuf
+    proto_stations = filtered_stations_data.map do |station_hash|
+      # NOTA: Assicurati che il namespace qui sia corretto per il tuo proto
+      ::Proto::Station.new(id: station_hash['id'], name: station_hash['name'])
+    end
+
+    # Restituisce la risposta
+    ::Proto::StationListResponse.new(stations: proto_stations)
+  end
+
+
+
   def get_train_realtime_status(request, _call)
     train_number_str = request.train_number.to_s
     puts "Received GetTrainRealtimeStatus request for train: #{train_number_str}"

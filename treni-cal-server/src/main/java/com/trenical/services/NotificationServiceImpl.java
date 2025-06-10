@@ -2,6 +2,7 @@ package com.trenical.services;
 
 import io.grpc.stub.StreamObserver;
 import proto.*;
+import proto.Treni.*;
 import com.trenical.database.TicketDatabase;
 import com.trenical.database.TrainDatabase;
 import com.trenical.observer.TripObserver;

@@ -1,20 +1,23 @@
 package com.trenical.observer;
 
+import ruby_viaggiatreno_microservizio.TrainStatusResponse;
 import proto.TripChangeNotification;
 import com.google.protobuf.Timestamp;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationEngine {
     private static NotificationEngine instance;
     private final Map<String, List<TripObserver>> trainObservers = new ConcurrentHashMap<>();
+    private final Map<String, TrainStatusResponse> lastKnownStatuses = new ConcurrentHashMap<>();
 
     private NotificationEngine() {}
-
 
     public static synchronized NotificationEngine getInstance() {
         if (instance == null) {
@@ -23,57 +26,67 @@ public class NotificationEngine {
         return instance;
     }
 
-
     public void addObserver(String trainId, TripObserver observer) {
         trainObservers.computeIfAbsent(trainId, k -> new CopyOnWriteArrayList<>()).add(observer);
-        System.out.println("[NotificationEngine] Added observer for ticket " + observer.getTicketId() + " on train " + trainId);
-    }
-
-    public void removeObserver(String trainId, TripObserver observer) {
-        List<TripObserver> observers = trainObservers.get(trainId);
-        if (observers != null) {
-            observers.remove(observer);
-            System.out.println("[NotificationEngine] Removed observer for ticket " + observer.getTicketId() + " on train " + trainId);
-        }
+        System.out.println("[NotificationEngine] Aggiunto osservatore per il biglietto " + observer.getTicketId() + " sul treno " + trainId);
     }
 
     public void removeObserverForTicket(String ticketId, TripObserver observerToRemove) {
         trainObservers.forEach((trainId, observers) -> {
             observers.removeIf(obs -> obs.getTicketId().equals(ticketId) && obs.equals(observerToRemove));
         });
-        System.out.println("[NotificationEngine] Attempted removal of observer for ticket " + ticketId);
+        System.out.println("[NotificationEngine] Tentata rimozione dell'osservatore per il biglietto " + ticketId);
     }
 
 
+    public Set<String> getSubscribedTrainIds() {
+        return trainObservers.keySet();
+    }
 
-    public void notifyTripChange(String trainId, String ticketIdForUpdate, String message, Timestamp newTime, String newPlatform) {
-        List<TripObserver> observers = trainObservers.get(trainId);
-        if (observers != null && !observers.isEmpty()) {
+    public boolean hasStatusChanged(String trainNumber, TrainStatusResponse newStatus) {
+        TrainStatusResponse lastStatus = lastKnownStatuses.get(trainNumber);
+        if (lastStatus == null) {
+            return true; // Se è la prima volta che vediamo questo treno, è un cambiamento.
+        }
+        // Confronta i campi chiave per determinare se è avvenuto un cambiamento degno di notifica.
+        return !(Objects.equals(lastStatus.getTrainStatusDescription(), newStatus.getTrainStatusDescription()) &&
+                lastStatus.getDelayMinutes() == newStatus.getDelayMinutes() &&
+                Objects.equals(lastStatus.getLastDetectedStation(), newStatus.getLastDetectedStation()));
+    }
+
+
+    public void updateAndNotifyObservers(String trainNumber, TrainStatusResponse newStatus) {
+        // Aggiorna la cache con il nuovo stato
+        lastKnownStatuses.put(trainNumber, newStatus);
+
+        List<TripObserver> observers = trainObservers.get(trainNumber);
+        if (observers == null || observers.isEmpty()) {
+            return;
+        }
+
+        String message = String.format("Treno %s: %s. Ritardo: %d min. Ultima rilevazione: %s",
+                newStatus.getTrainNumber(),
+                newStatus.getTrainStatusDescription(),
+                newStatus.getDelayMinutes(),
+                newStatus.getLastDetectedStation());
+
+        System.out.println("[NotificationEngine] Notificando " + observers.size() + " osservatori per il treno " + trainNumber);
+
+        for (TripObserver observer : observers) {
             TripChangeNotification notification = TripChangeNotification.newBuilder()
-                    .setTicketId(ticketIdForUpdate)
+                    .setTicketId(observer.getTicketId())
                     .setUpdateMessage(message)
-                    .setNewDepartureTime(newTime == null ? Timestamp.newBuilder().setSeconds(0).build() : newTime)
-                    .setNewPlatform(newPlatform == null ? "" : newPlatform)
                     .build();
-
-            System.out.println("[NotificationEngine] Notifying " + observers.size() + " observers for train " + trainId + " about: " + message);
-            for (TripObserver observer : observers) {
-                if(observer.getTicketId().equals(ticketIdForUpdate)) {
-                    observer.sendUpdate(notification);
-                }
-            }
-        } else {
-            System.out.println("[NotificationEngine] No observers for train " + trainId + " to notify about: " + message);
+            observer.sendUpdate(notification);
         }
     }
-
-
-    public void simulateTrainDelay(String trainIdAffected, String ticketIdOnTrain, String delayMessage) {
-        System.out.println("[NotificationEngine] Simulating delay for train " + trainIdAffected + ": " + delayMessage);
-        Timestamp newDeparture = Timestamp.newBuilder().setSeconds(Instant.now().getEpochSecond() + 7200).build();
-        String platform = "TBD";
-        notifyTripChange(trainIdAffected, ticketIdOnTrain, delayMessage, newDeparture, platform);
-    }
-
-
 }
+
+
+
+
+
+
+
+
+

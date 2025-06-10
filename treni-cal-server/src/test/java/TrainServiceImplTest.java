@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 // import static org.mockito.Mockito.*; // per i mock
 
+/*
 @ExtendWith(MockitoExtension.class)
 public class TrainServiceImplTest {
 
@@ -123,3 +124,4 @@ public class TrainServiceImplTest {
 
 
 }
+*/

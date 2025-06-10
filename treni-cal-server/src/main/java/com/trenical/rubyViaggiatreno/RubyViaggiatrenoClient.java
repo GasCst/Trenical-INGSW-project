@@ -3,9 +3,11 @@ package com.trenical.rubyViaggiatreno;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
+import ruby_viaggiatreno_microservizio.StationListResponse;
 import ruby_viaggiatreno_microservizio.TrainStatusRequest;
 import ruby_viaggiatreno_microservizio.TrainStatusResponse;
 import ruby_viaggiatreno_microservizio.ViaggiatrenoServiceGrpc;
+import ruby_viaggiatreno_microservizio.SearchStationRequest;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -22,6 +24,20 @@ public class RubyViaggiatrenoClient {
                 .build();
         this.blockingStub = ViaggiatrenoServiceGrpc.newBlockingStub(channel);
         logger.info("RubyViaggiatrenoClient connected to " + host + ":" + port);
+    }
+
+    public StationListResponse searchStations(String query) {
+        logger.info("Requesting stations from Ruby service with query: '" + query + "'");
+        try {
+            SearchStationRequest request = SearchStationRequest.newBuilder()
+                    .setSearchQuery(query)
+                    .build();
+            return blockingStub.searchStations(request);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "RPC to Ruby service failed for searchStations", e);
+            // In caso di errore, restituisce una lista vuota per non bloccare l'applicazione.
+            return StationListResponse.newBuilder().build();
+        }
     }
 
     public TrainStatusResponse getTrainStatus(String trainNumber) {
@@ -52,24 +68,4 @@ public class RubyViaggiatrenoClient {
         logger.info("Shutting down RubyViaggiatrenoClient channel.");
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
-
-    // Main veloce per testare questo client
-
-    public static void main(String[] args) throws InterruptedException {
-        RubyViaggiatrenoClient client = new RubyViaggiatrenoClient("localhost", 50052); // Port of your Ruby service
-        try {
-            TrainStatusResponse response = client.getTrainStatus("5546"); // Example train number
-            if (response.getFound()) {
-                System.out.println("Train: " + response.getTrainNumber());
-                System.out.println("Status: " + response.getTrainStatusDescription());
-                System.out.println("Delay: " + response.getDelayMinutes() + " minutes");
-                System.out.println("Last Seen: " + response.getLastDetectedStation() + " at " + response.getLastDetectionTime());
-            } else {
-                System.out.println("Error: " + response.getErrorMessage());
-            }
-        } finally {
-            client.shutdown();
-        }
-    }
-
 }

@@ -4,6 +4,7 @@ import io.grpc.stub.StreamObserver;
 import com.trenical.database.TicketDatabase;
 import com.trenical.database.TrainDatabase;
 import proto.*;
+import proto.Treni.*;
 import com.google.protobuf.Timestamp;
 import java.time.Instant;
 import java.util.UUID;

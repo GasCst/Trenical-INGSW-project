@@ -1,0 +1,25 @@
+# STAZIONI MOCK
+- id: S01700
+  name: Milano Centrale
+- id: S01618
+  name: Roma Termini
+- id: S01549
+  name: Napoli Centrale
+- id: S01201
+  name: Firenze Santa Maria Novella
+- id: S01427
+  name: Bologna Centrale
+- id: S01301
+  name: Torino Porta Nuova
+- id: S02404
+  name: Venezia Santa Lucia
+- id: S09100
+  name: Bari Centrale
+- id: S08502
+  name: Palermo Centrale
+- id: S02205
+  name: Genova Piazza Principe
+- id: S02102
+  name: Verona Porta Nuova
+- id: S09520
+  name: Reggio di Calabria Centrale

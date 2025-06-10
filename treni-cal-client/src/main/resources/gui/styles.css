@@ -22,7 +22,7 @@
 #notificationArea { /* Se hai dato un ID al TextArea */
     -fx-font-family: "Consolas", "Courier New", monospace;
     -fx-background-color: #333;
-    -fx-text-fill: #lime; /* Stile "terminale" per le notifiche */
+    -fx-text-fill: #00ff00; /* Stile "terminale" per le notifiche */
     -fx-control-inner-background: #333; /* Colore interno per TextArea */
 }
 
@@ -36,4 +36,9 @@
     -fx-border-color: #ccc;
     -fx-border-radius: 5px;
     -fx-padding: 5px;
+}
+
+.departed-train-row .text {
+    -fx-fill: #888888;
+    -fx-strikethrough: true;
 }
