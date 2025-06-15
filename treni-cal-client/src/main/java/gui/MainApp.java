@@ -291,15 +291,22 @@ public class MainApp extends Application {
         ticketIdForSubscriptionField.setPromptText("Inserisci ID biglietto...");
         ticketIdForSubscriptionField.setPrefWidth(200);
 
+
+        Button modifyTicketButton = new Button("Modifica Biglietto");
+        modifyTicketButton.setOnAction(e -> showModifyTicketDialog());
+
         Button subscribeButton = new Button("🔔 Sottoscrivi Notifiche");
         subscribeButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 15; -fx-background-radius: 5;");
         subscribeButton.setOnAction(e -> handleSubscribeAction());
 
-        subscriptionBox.getChildren().addAll(subscriptionLabel, ticketIdForSubscriptionField, subscribeButton);
+
+        subscriptionBox.getChildren().addAll(subscriptionLabel, ticketIdForSubscriptionField, subscribeButton, modifyTicketButton);
 
         actionPanel.getChildren().addAll(actionTitle, buttonBox, subscriptionBox);
         return actionPanel;
     }
+
+
 
     private VBox createNotificationPanel() {
         VBox notificationPanel = new VBox(10);
@@ -612,6 +619,63 @@ public class MainApp extends Application {
             });
         }).start();
     }
+
+    private void showModifyTicketDialog() {
+        String ticketId = ticketIdForSubscriptionField.getText().trim();
+        if (ticketId.isEmpty()) {
+            showAlert("ID richiesto", "Inserisci un ID biglietto valido per modificare.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Modifica Biglietto");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField newDate = new TextField();
+        TextField newTime = new TextField();
+        TextField paymentToken = new TextField();
+        ComboBox<String> newClass = new ComboBox<>();
+        newClass.getItems().addAll("1A", "2A");
+
+        grid.add(new Label("Nuova Data Viaggio (YYYY-MM-DD):"), 0, 0);
+        grid.add(newDate, 1, 0);
+        grid.add(new Label("Nuovo Orario Partenza (HH:MM):"), 0, 1);
+        grid.add(newTime, 1, 1);
+        grid.add(new Label("Nuova Classe:"), 0, 2);
+        grid.add(newClass, 1, 2);
+        grid.add(new Label("Token Pagamento per differenza:"), 0, 3);
+        grid.add(paymentToken, 1, 3);
+
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                ModifyTicketRequest.Builder req = ModifyTicketRequest.newBuilder()
+                        .setTicketId(ticketId)
+                        .setUserId(grpcService.getCurrentUserId())
+                        .setNewDepartureDate(newDate.getText())
+                        .setNewDepartureTime(newTime.getText())
+                        .setPaymentMethodTokenForDiff(paymentToken.getText());
+
+                if (newClass.getValue() != null) {
+                    req.setNewServiceClass(newClass.getValue());
+                }
+                if (!newDate.getText().isEmpty()) {
+                    req.setNewTravelDate(newDate.getText());
+                }
+
+                ModifyTicketResponse response = grpcService.modifyTicket(req.build());
+                showAlert("Modifica", response.getMessage() +
+                                (response.getSuccess() ? "\\nPrezzo aggiornato: €" + response.getNewPrice() : ""),
+                        response.getSuccess() ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR);
+            }
+        });
+    }
+
 
     private void handleSubscribeAction() {
         String ticketId = ticketIdForSubscriptionField.getText().trim();

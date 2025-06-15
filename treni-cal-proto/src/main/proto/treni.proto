@@ -105,17 +105,18 @@ message PurchaseTicketResponse {
 message ModifyTicketRequest {
   string ticket_id = 1;
   string user_id = 2;
-  optional TravelDate new_travel_date = 3;
-  optional string new_departure_time_str = 4;
-  optional string new_service_class = 5;
-  optional string payment_method_token_for_diff = 6;
+  optional string new_service_class = 3;
+  string new_departure_date = 4;
+  string new_departure_time = 5;
+  optional string new_travel_date = 6;
+  string payment_method_token_for_diff = 7;
 }
 
 message ModifyTicketResponse {
   bool success = 1;
-  Ticket modified_ticket = 2;
-  string message = 3;
-  double additional_charge = 4;
+  string message = 2;
+  double new_price = 3;
+  Ticket modified_ticket = 4;
 }
 
 message UserRequest {

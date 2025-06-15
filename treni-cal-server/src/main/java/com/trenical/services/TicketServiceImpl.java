@@ -1,6 +1,8 @@
 package com.trenical.services;
 
 import io.grpc.stub.StreamObserver;
+import proto.ModifyTicketRequest;
+import proto.ModifyTicketResponse;
 import proto.*;
 import com.google.protobuf.Timestamp;
 
@@ -205,7 +207,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
 
                     responseBuilder.setSuccess(true)
                             .setModifiedTicket(finalTicket)
-                            .setAdditionalCharge(additionalCharge)
+                            .setNewPrice(additionalCharge)
                             .setMessage("Biglietto modificato con successo.");
                 }
             } else {

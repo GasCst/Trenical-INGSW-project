@@ -388,6 +388,19 @@ public class GrpcClientService {
         return currentUserId;
     }
 
+
+    public ModifyTicketResponse modifyTicket(ModifyTicketRequest request) {
+        try {
+            return ticketServiceBlockingStub.modifyTicket(request);
+        } catch (StatusRuntimeException e) {
+            logger.warning("Errore gRPC in modifyTicket: " + e.getStatus());
+            return ModifyTicketResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Errore durante la modifica del biglietto: " + e.getStatus().getDescription())
+                    .build();
+        }
+    }
+
     public boolean isChannelHealthy() {
         try {
             return !channel.isShutdown() && !channel.isTerminated() && !isCircuitOpen();
