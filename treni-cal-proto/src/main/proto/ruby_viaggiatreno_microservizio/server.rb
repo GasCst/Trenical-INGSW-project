@@ -14,7 +14,6 @@ require 'nokogiri'
 require 'yaml'
 require 'timeout'
 
-# Setup simple logging with better formatting
 def log(level, message)
   timestamp = Time.now.strftime('%Y-%m-%d %H:%M:%S')
   puts "[#{timestamp}] #{level.upcase}: #{message}"
@@ -22,7 +21,6 @@ end
 
 log('info', 'Starting Ruby Viaggiatreno Server...')
 
-# Enhanced HTTP client with retry logic
 module HTTPClient
   RETRY_ATTEMPTS = 3
   RETRY_DELAY = 1.0
@@ -48,7 +46,7 @@ module HTTPClient
           if response.is_a?(Net::HTTPSuccess)
             return response.body
           elsif response.is_a?(Net::HTTPRedirection)
-            # Handle redirects
+
             new_uri = URI.parse(response['location'])
             uri = uri.merge(new_uri)
             next
@@ -69,7 +67,7 @@ module HTTPClient
   end
 end
 
-# Enhanced Kernel.open with better error handling
+
 module Kernel
   alias_method :original_kernel_open_for_patch, :open
 
@@ -98,7 +96,7 @@ module Kernel
   end
 end
 
-# Load viaggiatreno_fixed
+
 begin
   require_relative 'viaggiatreno_fixed'
   log('info', 'Viaggiatreno Fixed loaded successfully')
@@ -120,15 +118,12 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
     @error_count = 0
     @start_time = Time.now
 
-    # Initialize database connection with retry
     initialize_database_with_retry
 
-    # Initialize caches
     @station_cache = {}
     @train_cache = {}
     @cache_ttl = 300 # 5 minutes
 
-    # Preload station cache for faster searches
     preload_station_cache
 
     log('info', 'ViaggiatrenoServer initialized successfully')
@@ -143,7 +138,6 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
     begin
       attempts += 1
 
-      # Calculate path to project root - more robust path detection
       possible_paths = [
         File.expand_path("../../../../../", __dir__),
         File.expand_path("../../../../", __dir__),
@@ -168,15 +162,13 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
 
       @db = SQLite3::Database.new(db_path)
       @db.results_as_hash = true
-
-      # Enable optimizations and WAL mode
       @db.execute("PRAGMA journal_mode = WAL")
       @db.execute("PRAGMA synchronous = NORMAL")
       @db.execute("PRAGMA cache_size = -32000") # 32MB cache
       @db.execute("PRAGMA temp_store = MEMORY")
       @db.execute("PRAGMA mmap_size = 268435456") # 256MB mmap
 
-      # Test the connection
+
       result = @db.execute("SELECT COUNT(*) as count FROM stations").first
       station_count = result['count']
 
@@ -249,7 +241,7 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
     end
 
     begin
-      # Enhanced SQL query with better relevance scoring
+
       sql = """
         SELECT DISTINCT
           stop_id,
@@ -275,7 +267,7 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
         LIMIT 25
       """
 
-      # Prepare search patterns
+
       exact_match = search_query
       starts_with = "#{search_query}%"
       contains = "%#{search_query}%"
@@ -287,18 +279,18 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
 
       log('info', "Found #{results.length} stations in #{query_time}ms")
 
-      # Convert to protobuf stations
+
       proto_stations = results.map do |row|
         station_name = row['stop_name'].to_s
 
-        # Enhance station name with code if available
+
         if row['stop_code'] && !row['stop_code'].empty?
           enhanced_name = "#{station_name} (#{row['stop_code']})"
         else
           enhanced_name = station_name
         end
 
-        # Add location type indicator
+
         case row['location_type']
         when 1
           enhanced_name += " 🚉"
@@ -365,21 +357,21 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
 
         response.found = true
 
-        # Migliora il messaggio di status
+
         status_message = vt_train.status
 
-        # Converti status specifici in messaggi più informativi
+
         case status_message
         when /^\d{2}:\d{2}$/  # Orario come "09:24", "08:56"
           status_message = "Arrivo previsto alle #{status_message}"
         when "Non ancora partito"
           status_message = "Il treno non è ancora partito"
         when /^In stazione:/
-          status_message = vt_train.status  # Mantieni così com'è
+          status_message = vt_train.status
         when /arrivato.*ritardo/i
-          status_message = vt_train.status  # Mantieni così com'è
+          status_message = vt_train.status
         when /partito.*ritardo/i
-          status_message = vt_train.status  # Mantieni così com'è
+          status_message = vt_train.status
         end
 
         response.train_status_description = status_message
@@ -388,7 +380,7 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
         response.last_detected_station = vt_train.last_station || "Nessun aggiornamento"
         response.last_detection_time = Time.now.strftime("%H:%M")
 
-        # Usa i dati dal parsing HTML se disponibili
+
         if vt_train.origin && vt_train.destination
           response.origin_station = vt_train.origin
           response.destination_station = vt_train.destination
@@ -404,7 +396,7 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
       else
         log('warn', "Train object created but no valid data available: status='#{vt_train&.status}'")
 
-        # Provide more specific error messages
+
         if vt_train&.status == "Servizio temporaneamente non disponibile"
           response.error_message = "Servizio Viaggiatreno temporaneamente non disponibile per il treno #{train_number_str}"
         elsif vt_train&.status == "Informazioni non disponibili"
@@ -472,7 +464,7 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
 
     trip_name = train_info['trip_short_name'].to_s
 
-    # Estrai categoria dal nome del trip
+
     if trip_name.match(/^(\w+)/i)
       return $1.upcase
     end
@@ -511,13 +503,12 @@ class ViaggiatrenoServer < Trenical::RubyViaggiatreno::ViaggiatrenoService::Serv
   end
 end
 
-# Enhanced signal handlers for graceful shutdown
 def setup_signal_handlers(server)
   ['TERM', 'INT'].each do |signal|
     Signal.trap(signal) do
       log('info', "Received signal #{signal}. Initiating graceful shutdown...")
 
-      # Give the server a moment to finish current requests
+
       Thread.new do
         sleep(2)
         log('info', 'Stopping gRPC server...')
@@ -530,21 +521,21 @@ def setup_signal_handlers(server)
   end
 end
 
-# Main execution with enhanced error handling
+
 def main
   port = '0.0.0.0:50052'
 
   begin
     log('info', 'Creating gRPC server...')
 
-    # Create server with enhanced options
+
     server = GRPC::RpcServer.new(
-      pool_size: 15,                    # Increased pool size
-      max_waiting_requests: 20,         # Allow more queued requests
-      poll_period: 1,                   # Check for shutdown more frequently
+      pool_size: 15,
+      max_waiting_requests: 20,
+      poll_period: 1,
       server_args: {
-        'grpc.keepalive_time_ms' => 60000,           # 60 seconds
-        'grpc.keepalive_timeout_ms' => 20000,        # 20 seconds
+        'grpc.keepalive_time_ms' => 60000,
+        'grpc.keepalive_timeout_ms' => 20000,
         'grpc.keepalive_permit_without_calls' => 1,
         'grpc.http2.max_pings_without_data' => 0,
         'grpc.http2.min_time_between_pings_ms' => 10000,
@@ -580,5 +571,5 @@ def main
   end
 end
 
-# Run the server
+# Runna il server GGGG
 main if __FILE__ == $0

@@ -19,10 +19,14 @@ public class RubyViaggiatrenoClient {
     private final ViaggiatrenoServiceGrpc.ViaggiatrenoServiceBlockingStub blockingStub;
 
     public RubyViaggiatrenoClient(String host, int port) {
+
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
-        this.blockingStub = ViaggiatrenoServiceGrpc.newBlockingStub(channel);
+
+        this.blockingStub = ViaggiatrenoServiceGrpc.newBlockingStub(channel)
+                .withDeadlineAfter(30, TimeUnit.SECONDS);
+
         logger.info("RubyViaggiatrenoClient connected to " + host + ":" + port);
     }
 

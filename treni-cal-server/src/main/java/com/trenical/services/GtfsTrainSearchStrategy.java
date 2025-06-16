@@ -5,15 +5,35 @@ import proto.SearchTrainRequest;
 import proto.Station;
 import proto.Train;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.sql.*;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+
 public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
 
-    private static final String DB_PATH = "jdbc:sqlite:trenical.db";
+    private static final String DB_PATH;
+
+    static {
+
+        URL resource = GtfsTrainSearchStrategy.class.getClassLoader().getResource("treni-cal-server/trenical.db");
+        if (resource != null) {
+            try {
+                DB_PATH = "jdbc:sqlite:" + new File(resource.toURI()).getPath();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+
+            throw new RuntimeException("Database file not found in the classpath!");
+        }
+    }
+
     private static final Logger logger = Logger.getLogger(GtfsTrainSearchStrategy.class.getName());
 
     @Override
@@ -51,6 +71,9 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
                 "AND dep.stop_sequence < arr.stop_sequence " +
                 "ORDER BY dep.departure_time";
 
+
+
+
         try (Connection conn = DriverManager.getConnection(DB_PATH);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -63,7 +86,7 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
             while (rs.next()) {
                 totalFound++;
 
-                // Check if train operates today
+
                 if (!isTrainOperatingToday(rs, currentDate)) {
                     continue;
                 }
@@ -71,12 +94,12 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
                 String departureTimeStr = rs.getString("departure_time");
                 LocalTime departureTime = parseGTFSTime(departureTimeStr);
 
-                // Filter trains: show trains departing after current time + 2 previous trains
+
                 boolean includeThisTrain = false;
                 if (departureTime.isAfter(currentTime)) {
-                    includeThisTrain = true; // Future trains
+                    includeThisTrain = true;
                 } else {
-                    // Include up to 2 recent past trains for reference
+
                     Duration timeSinceDepart = Duration.between(departureTime, currentTime);
                     if (timeSinceDepart.toHours() <= 2) {
                         includeThisTrain = true;
@@ -101,23 +124,23 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
                 Timestamp departureTimestamp = convertTimeToTimestamp(departureTimeStr, currentDate);
                 Timestamp arrivalTimestamp = convertTimeToTimestamp(rs.getString("arrival_time"), currentDate);
 
-                // Extract clean train number for Viaggiatreno API
+
                 String tripShortName = rs.getString("trip_short_name");
                 String cleanTrainNumber = extractCleanTrainNumber(tripShortName);
 
-                // If we can't extract a valid train number, use the trip short name as-is
+
                 if (cleanTrainNumber == null) {
                     cleanTrainNumber = tripShortName != null ? tripShortName : "N/A";
                     System.out.println("Could not extract clean train number from: " + tripShortName +
                             ", using: " + cleanTrainNumber);
                 }
 
-                // Determine service class and price from REAL route data
+
                 String routeShortName = rs.getString("route_short_name");
                 String serviceClass = determineServiceClass(routeShortName, rs.getString("route_long_name"));
                 double price = calculateRealPrice(routeShortName, rs.getString("route_desc"));
 
-                // Get available seats based on REAL train type (no more mocks)
+
                 int availableSeats = getRealAvailableSeats(routeShortName);
 
                 Train train = Train.newBuilder()
@@ -167,7 +190,7 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
             int minutes = Integer.parseInt(parts[1]);
             int seconds = Integer.parseInt(parts[2]);
 
-            // Handle times >= 24:00:00 (next day in GTFS)
+
             if (hours >= 24) {
                 hours -= 24;
             }
@@ -209,26 +232,24 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
         String trimmed = tripShortName.trim();
         logger.fine("Extracting train number from: '" + trimmed + "'");
 
-        // Extract pure numbers for Viaggiatreno API compatibility
-        // Examples: "FR 9001" -> "9001", "IC 501" -> "501", "NTV 9701" -> "9701"
+
         String[] parts = trimmed.split("\\s+");
         for (String part : parts) {
-            // Must be 3-5 digits for valid train number
+
             if (part.matches("\\d{3,5}")) {
                 logger.fine("Extracted train number: " + part + " from: " + trimmed);
                 return part;
             }
         }
 
-        // If no pure number found, extract numbers from the string
+
         String numbers = trimmed.replaceAll("[^0-9]", "");
         if (numbers.length() >= 3 && numbers.length() <= 5) {
             logger.fine("Extracted train number from cleanup: " + numbers + " from: " + trimmed);
             return numbers;
         }
 
-        // Try alternative patterns for edge cases
-        // Pattern: Letters followed by numbers (e.g., "FR9001", "IC501")
+
         if (trimmed.matches("[A-Z]{1,3}\\d{3,5}")) {
             String extracted = trimmed.replaceAll("^[A-Z]+", "");
             if (extracted.length() >= 3 && extracted.length() <= 5) {
@@ -245,7 +266,7 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
     private String determineServiceClass(String routeShortName, String routeLongName) {
         if (routeShortName == null) return "Standard";
 
-        // Based on REAL Italian train types
+
         switch (routeShortName.toUpperCase()) {
             case "FRECCIAROSSA":
                 return "Executive";
@@ -285,10 +306,10 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
     private double calculateRealPrice(String routeShortName, String routeDesc) {
         if (routeShortName == null) return 15.00;
 
-        // Real Italian train pricing (approximate)
+
         switch (routeShortName.toUpperCase()) {
             case "FRECCIAROSSA":
-                return 89.90; // Base price for long routes
+                return 89.90;
             case "FRECCIARGENTO":
                 return 69.90;
             case "FRECCIABIANCA":
@@ -298,13 +319,13 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
             case "IC":
                 return 39.50;
             case "ICN":
-                return 45.00; // Night trains
+                return 45.00;
             case "REG":
             case "FL1": case "FL2": case "FL3": case "FL4": case "FL5": case "FL6": case "FL7": case "FL8":
             case "S1": case "S2": case "S3": case "S4": case "S5": case "S6": case "S7": case "S8":
             case "S9": case "S10": case "S11": case "S12": case "S13":
             case "SFM1": case "SFM2": case "SFM3": case "SFM4":
-                return 8.50; // Regional trains
+                return 8.50;
             default:
                 return 20.00;
         }
@@ -314,22 +335,22 @@ public class GtfsTrainSearchStrategy implements TrainSearchStrategy {
     private int getRealAvailableSeats(String routeShortName) {
         if (routeShortName == null) return 100;
 
-        // Real train capacities (approximate)
+
         switch (routeShortName.toUpperCase()) {
             case "FRECCIAROSSA":
-                return 485; // ETR 1000 capacity
+                return 485;
             case "FRECCIARGENTO":
-                return 460; // ETR 600 capacity
+                return 460;
             case "FRECCIABIANCA":
-                return 380; // ETR 460 capacity
+                return 380;
             case "ITALO":
-                return 450; // AGV capacity
+                return 450;
             case "IC":
-                return 250; // Standard IC carriages
+                return 250;
             case "ICN":
-                return 200; // Night train capacity
+                return 200;
             default:
-                return 150; // Regional trains
+                return 150;
         }
     }
 

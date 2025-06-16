@@ -80,6 +80,14 @@ public class NotificationEngine {
             observer.sendUpdate(notification);
         }
     }
+
+
+
+//    NON SERVE ORA PERCHé la classe non é Serializable
+//    private Object readResolve() {
+//        return getInstance();
+//    }
+
 }
 
 

@@ -21,10 +21,9 @@ import java.util.logging.Logger;
 public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
 
     private static final Logger logger = Logger.getLogger(TicketServiceImpl.class.getName());
-    private static final String DB_PATH = "jdbc:sqlite:trenical.db";
+    private static final String DB_PATH = "jdbc:sqlite:../../trenical.db";
 
     public TicketServiceImpl() {
-        // Initialize tickets table if it doesn't exist
         createTicketsTableIfNotExists();
         logger.info("TicketServiceImpl initialized with REAL SQLite database");
     }
@@ -49,7 +48,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
 
             stmt.execute(createTableSQL);
 
-            // Create index for performance
+
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_tickets_user ON tickets(user_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_tickets_trip ON tickets(trip_id)");
 
@@ -68,7 +67,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
 
         try (Connection conn = DriverManager.getConnection(DB_PATH)) {
 
-            // 1. Get REAL train info from GTFS
+
             Train trainToBook = getRealTrainFromGTFS(conn, request.getTrainId());
 
             if (trainToBook == null) {
@@ -78,7 +77,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
                 return;
             }
 
-            // 2. Check REAL available seats
+
             int soldTickets = getTicketCountForTrip(conn, request.getTrainId(), request.getServiceClass());
             int totalCapacity = getRealTrainCapacity(trainToBook.getServiceClass());
             int availableSeats = totalCapacity - soldTickets;
@@ -93,7 +92,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
                 return;
             }
 
-            // 3. Process payment (simulate real payment processing)
+
             boolean paymentSuccessful = processPayment(request.getPaymentMethodToken(), trainToBook.getPrice() * request.getNumberOfTickets());
 
             if (!paymentSuccessful) {
@@ -103,14 +102,14 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
                 return;
             }
 
-            // 4. Create and save REAL tickets
+
             List<Ticket> purchasedTicketsList = new ArrayList<>();
 
             for (int i = 0; i < request.getNumberOfTickets(); i++) {
                 String ticketId = UUID.randomUUID().toString();
                 String seatNumber = generateRealSeatNumber(request.getServiceClass(), soldTickets + i + 1);
 
-                // Create ticket with REAL train data
+
                 Ticket newTicket = Ticket.newBuilder()
                         .setId(ticketId)
                         .setUserId(request.getUserId())
@@ -122,7 +121,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
                         .setStatus("CONFIRMED")
                         .build();
 
-                // Save to database
+
                 saveTicketToDatabase(conn, newTicket, request.getTrainId());
                 purchasedTicketsList.add(newTicket);
 
@@ -163,15 +162,15 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
             boolean modified = false;
             Ticket.Builder modifiedTicketBuilder = existingTicket.toBuilder();
 
-            // Handle date change
+
             if (request.hasNewTravelDate()) {
-                // In a real system, this would involve complex rebooking logic
+
                 additionalCharge += 15.0; // Real change fee
                 modified = true;
                 logger.info("Date change requested for ticket: " + request.getTicketId());
             }
 
-            // Handle service class change
+
             if (request.hasNewServiceClass() && !request.getNewServiceClass().equals(existingTicket.getTrainDetails().getServiceClass())) {
                 double currentPrice = existingTicket.getTrainDetails().getPrice();
                 double newPrice = calculatePriceForServiceClass(request.getNewServiceClass());
@@ -191,7 +190,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
                     responseBuilder.setSuccess(false)
                             .setMessage("Pagamento aggiuntivo richiesto: €" + String.format("%.2f", additionalCharge));
                 } else {
-                    // Process additional payment if needed
+
                     if (additionalCharge > 0) {
                         boolean paymentSuccessful = processPayment(request.getPaymentMethodTokenForDiff(), additionalCharge);
                         if (!paymentSuccessful) {
@@ -246,7 +245,7 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
         }
     }
 
-    // Helper methods
+
 
     private Train getRealTrainFromGTFS(Connection conn, String tripId) throws SQLException {
         String sql = """
@@ -470,41 +469,41 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
         return tickets;
     }
 
-    // Utility methods
+
 
     private boolean processPayment(String paymentToken, double amount) {
-        // Simulate real payment processing
+
         if (paymentToken == null || paymentToken.isEmpty()) {
             return false;
         }
 
-        // In a real system, integrate with payment providers like Stripe, PayPal, etc.
+
         logger.info("Processing payment: €" + String.format("%.2f", amount) + " with token: " + paymentToken);
 
-        // Simulate success (in reality, call payment API)
+        // Simulato
         return !paymentToken.equals("INVALID_TOKEN");
     }
 
     private String generateRealSeatNumber(String serviceClass, int seatIndex) {
-        // Generate realistic seat numbers based on Italian train layout
+
         switch (serviceClass.toUpperCase()) {
             case "EXECUTIVE":
             case "BUSINESS":
-                // Premium seats: 1-2A, 1-2B format
+
                 int row = (seatIndex / 2) + 1;
                 char seat = (seatIndex % 2 == 0) ? 'A' : 'B';
                 return row + "" + seat;
 
             case "PREMIUM":
             case "SMART":
-                // 4-seat rows: 1A, 1B, 1C, 1D
+
                 int premiumRow = (seatIndex / 4) + 1;
                 char[] premiumSeats = {'A', 'B', 'C', 'D'};
                 char premiumSeat = premiumSeats[seatIndex % 4];
                 return premiumRow + "" + premiumSeat;
 
             default:
-                // Standard 6-seat rows
+
                 int standardRow = (seatIndex / 6) + 1;
                 char[] standardSeats = {'A', 'B', 'C', 'D', 'E', 'F'};
                 char standardSeat = standardSeats[seatIndex % 6];
@@ -581,19 +580,19 @@ public class TicketServiceImpl extends TicketServiceGrpc.TicketServiceImplBase {
 
     private Timestamp convertTimeStringToTimestamp(String timeStr) {
         try {
-            // Convert GTFS time (HH:MM:SS) to timestamp for today
+
             String[] parts = timeStr.split(":");
             int hours = Integer.parseInt(parts[0]);
             int minutes = Integer.parseInt(parts[1]);
             int seconds = Integer.parseInt(parts[2]);
 
-            // Handle times >= 24:00:00 (next day)
+
             if (hours >= 24) {
                 hours -= 24;
             }
 
             Instant now = Instant.now();
-            // For simplicity, use current date with the GTFS time
+
             long epochSeconds = now.getEpochSecond() + (hours * 3600) + (minutes * 60) + seconds;
 
             return Timestamp.newBuilder()

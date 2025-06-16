@@ -21,7 +21,7 @@ public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase {
 
     private static final Logger logger = Logger.getLogger(TrainServiceImpl.class.getName());
     private final RubyViaggiatrenoClient rubyClient;
-    private static final String DB_PATH = "jdbc:sqlite:trenical.db";
+    private static final String DB_PATH = "jdbc:sqlite:../../trenical.db";
     private final TrainSearchStrategy searchStrategy;
 
 
@@ -66,7 +66,7 @@ public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase {
         logger.info("Ricevuta richiesta GetTrainRealTimeInfo per il treno ID: " + trainId);
 
         try {
-            // Get the actual train number from database using train ID
+
             String actualTrainNumber = getActualTrainNumber(trainId);
 
             if (actualTrainNumber == null || actualTrainNumber.equals("N/A")) {
@@ -144,26 +144,24 @@ public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase {
         String trimmed = tripShortName.trim();
         logger.fine("Extracting train number from: '" + trimmed + "'");
 
-        // Extract pure numbers for Viaggiatreno API compatibility
-        // Examples: "FR 9001" -> "9001", "IC 501" -> "501", "NTV 9701" -> "9701"
+
         String[] parts = trimmed.split("\\s+");
         for (String part : parts) {
-            // Must be 3-5 digits for valid train number
+
             if (part.matches("\\d{3,5}")) {
                 logger.fine("Extracted train number: " + part + " from: " + trimmed);
                 return part;
             }
         }
 
-        // If no pure number found, extract numbers from the string
+
         String numbers = trimmed.replaceAll("[^0-9]", "");
         if (numbers.length() >= 3 && numbers.length() <= 5) {
             logger.fine("Extracted train number from cleanup: " + numbers + " from: " + trimmed);
             return numbers;
         }
 
-        // Try alternative patterns for edge cases
-        // Pattern: Letters followed by numbers (e.g., "FR9001", "IC501")
+
         if (trimmed.matches("[A-Z]{1,3}\\d{3,5}")) {
             String extracted = trimmed.replaceAll("^[A-Z]+", "");
             if (extracted.length() >= 3 && extracted.length() <= 5) {
@@ -199,8 +197,7 @@ public class TrainServiceImpl extends TreniCalGrpc.TreniCalImplBase {
                     } else {
                         logger.warning("Could not extract valid train number from trip_short_name: " + shortName);
 
-                        // Try to use the trip_short_name as-is for debugging
-                        // This helps identify what format the data is actually in
+
                         return shortName.replaceAll("[^0-9]", "");
                     }
                 } else {

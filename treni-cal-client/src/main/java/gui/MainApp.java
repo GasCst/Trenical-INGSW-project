@@ -235,7 +235,7 @@ public class MainApp extends Application {
         trainTableView.setPrefHeight(300);
         trainTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Custom row factory for styling departed trains
+        // treni in partenza
         trainTableView.setRowFactory(tv -> {
             TableRow<TrainDisplay> row = new TableRow<>();
             row.itemProperty().addListener((obs, oldItem, newItem) -> {
@@ -338,7 +338,7 @@ public class MainApp extends Application {
             }
         });
 
-        // Store the last selected station to prevent clearing
+
         Station[] lastSelectedStation = new Station[1];
         boolean[] isUpdatingFromSelection = new boolean[1]; // Prevent recursive updates
 
@@ -346,7 +346,7 @@ public class MainApp extends Application {
             if (isUpdatingFromSelection[0]) return; // Skip if we're updating from selection
 
             if (newValue == null || newValue.length() < 2) {
-                // Only clear items if no station is selected
+
                 if (comboBox.getSelectionModel().getSelectedItem() == null) {
                     comboBox.getItems().clear();
                     lastSelectedStation[0] = null;
@@ -354,34 +354,34 @@ public class MainApp extends Application {
                 return;
             }
 
-            // Check if user is trying to clear or change the field
+
             Station currentSelection = comboBox.getSelectionModel().getSelectedItem();
             if (currentSelection != null) {
                 String currentDisplayName = extractStationDisplayName(currentSelection);
 
-                // If user deleted part of the station name, clear the selection
+
                 if (newValue.length() < currentDisplayName.length() &&
                         !currentDisplayName.toLowerCase().startsWith(newValue.toLowerCase())) {
                     comboBox.getSelectionModel().clearSelection();
                     lastSelectedStation[0] = null;
                 }
 
-                // If the text exactly matches current selection, don't search
+
                 if (newValue.equals(currentDisplayName) ||
                         newValue.equals(currentSelection.getName())) {
                     return;
                 }
             }
 
-            // Extract clean search query
+
             String cleanQuery = extractCleanStationName(newValue);
 
-            // Perform search in background
+
             new Thread(() -> {
                 try {
                     List<Station> searchResult = grpcService.searchStations(cleanQuery);
                     Platform.runLater(() -> {
-                        // Check if the text field still contains our search query
+
                         if (cleanQuery.equals(extractCleanStationName(comboBox.getEditor().getText()))) {
                             comboBox.getItems().setAll(searchResult);
 
@@ -396,7 +396,7 @@ public class MainApp extends Application {
             }).start();
         });
 
-        // Handle selection changes
+
         comboBox.getSelectionModel().selectedItemProperty().addListener((obs, oldStation, newStation) -> {
             if (newStation != null && !isUpdatingFromSelection[0]) {
                 lastSelectedStation[0] = newStation;
@@ -405,23 +405,23 @@ public class MainApp extends Application {
                 Platform.runLater(() -> {
                     String displayName = extractStationDisplayName(newStation);
                     comboBox.getEditor().setText(displayName);
-                    comboBox.hide(); // Hide dropdown after selection
+                    comboBox.hide();
                     isUpdatingFromSelection[0] = false;
                 });
             }
         });
 
-        // Handle focus events
+
         comboBox.getEditor().focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
-                // When gaining focus, select all text for easy replacement
+
                 Platform.runLater(() -> {
                     comboBox.getEditor().selectAll();
                 });
             }
         });
 
-        // Custom string converter
+
         comboBox.setConverter(new StringConverter<Station>() {
             @Override
             public String toString(Station station) {
@@ -435,7 +435,7 @@ public class MainApp extends Application {
                     return null;
                 }
 
-                // First, try to find exact match in current items
+
                 for (Station station : comboBox.getItems()) {
                     if (station.getName().equals(string) ||
                             extractStationDisplayName(station).equals(string) ||
@@ -444,7 +444,7 @@ public class MainApp extends Application {
                     }
                 }
 
-                // Check last selected station
+
                 if (lastSelectedStation[0] != null) {
                     String lastStationDisplay = extractStationDisplayName(lastSelectedStation[0]);
                     String cleanLast = extractCleanStationName(lastStationDisplay);
@@ -482,9 +482,7 @@ public class MainApp extends Application {
         updateStatus("Sistema pronto per una nuova ricerca.");
     }
 
-    /**
-     * Extract clean station name for display in the text field
-     */
+
     private String extractStationDisplayName(Station station) {
         if (station == null || station.getName() == null) {
             return "";
@@ -492,11 +490,11 @@ public class MainApp extends Application {
 
         String name = station.getName();
 
-        // Remove emoji and extra formatting for display
+
         name = name.replaceAll(" 🚉", "")
                 .replaceAll(" 🚏", "");
 
-        // Extract just the main station name (before parentheses)
+
         int parenIndex = name.indexOf(" (");
         if (parenIndex > 0) {
             return name.substring(0, parenIndex);
@@ -505,15 +503,13 @@ public class MainApp extends Application {
         return name;
     }
 
-    /**
-     * Extract clean station name for searching
-     */
+
     private String extractCleanStationName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return "";
         }
 
-        // Remove all formatting: emojis, parentheses content, extra spaces
+
         String clean = name.replaceAll(" 🚉", "")
                 .replaceAll(" 🚏", "")
                 .replaceAll("\\s*\\([^)]*\\)", "")
@@ -781,7 +777,7 @@ public class MainApp extends Application {
         trainTableView.getColumns().setAll(depTimeCol, arrTimeCol, fromCol, toCol, numberCol, classCol, priceCol, seatsCol, statusCol);
         trainTableView.getSortOrder().add(depTimeCol);
 
-        // Style the table
+        // table style
         trainTableView.setStyle("-fx-background-color: white;");
     }
 

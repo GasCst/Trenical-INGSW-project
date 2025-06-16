@@ -33,17 +33,17 @@ public class GrpcClientService {
     public GrpcClientService(String host, int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
-                .keepAliveTime(60, TimeUnit.SECONDS)  // Increased from 30s
-                .keepAliveTimeout(20, TimeUnit.SECONDS)  // Increased from 10s
+                .keepAliveTime(60, TimeUnit.SECONDS)
+                .keepAliveTimeout(20, TimeUnit.SECONDS)
                 .keepAliveWithoutCalls(true)
                 .maxInboundMessageSize(4 * 1024 * 1024)  // 4MB limit
                 .build();
 
-        // CRITICAL FIX: Significantly increased timeouts
+
         this.trainServiceBlockingStub = TreniCalGrpc.newBlockingStub(channel)
-                .withDeadlineAfter(120, TimeUnit.SECONDS);  // Increased from 30s to 120s
+                .withDeadlineAfter(120, TimeUnit.SECONDS);
         this.ticketServiceBlockingStub = TicketServiceGrpc.newBlockingStub(channel)
-                .withDeadlineAfter(90, TimeUnit.SECONDS);   // Increased from 30s to 90s
+                .withDeadlineAfter(90, TimeUnit.SECONDS);
         this.notificationServiceAsyncStub = NotificationServiceGrpc.newStub(channel);
 
         logger.info("GrpcClientService initialized for user: " + currentUserId);
@@ -60,8 +60,8 @@ public class GrpcClientService {
             return new ArrayList<>();
         }
 
-        int maxRetries = 2;  // Reduced retries to avoid UI delays
-        long backoffMs = 500; // Start with 500ms
+        int maxRetries = 2;
+        long backoffMs = 500;
 
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
@@ -69,12 +69,12 @@ public class GrpcClientService {
                         .setSearchQuery(query.trim())
                         .build();
 
-                // Use even longer timeout for station search as it's critical
+
                 StationListResponse response = trainServiceBlockingStub
                         .withDeadlineAfter(150, TimeUnit.SECONDS)
                         .searchStations(request);
 
-                // Reset circuit breaker on success
+
                 consecutiveFailures = 0;
 
                 logger.info("Found " + response.getStationsList().size() + " stations for query: " + query);
@@ -85,7 +85,7 @@ public class GrpcClientService {
                     logger.warning("Timeout on attempt " + attempt + "/" + maxRetries + " for query: " + query +
                             ". Retrying in " + (backoffMs * attempt) + "ms...");
                     try {
-                        Thread.sleep(backoffMs * attempt); // Linear backoff
+                        Thread.sleep(backoffMs * attempt);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
                         break;
@@ -132,12 +132,11 @@ public class GrpcClientService {
         List<TrainDisplay> displayList = new ArrayList<>();
 
         try {
-            // Use longer timeout for train search as it involves database queries
             SearchTrainResponse response = trainServiceBlockingStub
                     .withDeadlineAfter(120, TimeUnit.SECONDS)
                     .searchTrains(request);
 
-            // Reset circuit breaker on success
+
             consecutiveFailures = 0;
 
             for (Train train : response.getAvailableTrainsList()) {
@@ -204,7 +203,7 @@ public class GrpcClientService {
                     .setTrainId(trainId.trim())
                     .build();
 
-            // Use shorter timeout for real-time info as it should be quick
+
             Iterator<TrainRealTimeUpdate> responseIterator = trainServiceBlockingStub
                     .withDeadlineAfter(60, TimeUnit.SECONDS)
                     .getTrainRealTimeInfo(request);
@@ -358,13 +357,13 @@ public class GrpcClientService {
         }
     }
 
-    // Circuit breaker methods
+    // Circuit breaker metodi
     private boolean isCircuitOpen() {
         if (consecutiveFailures < FAILURE_THRESHOLD) {
             return false;
         }
 
-        // Check if recovery timeout has elapsed
+
         boolean isOpen = (System.currentTimeMillis() - lastFailureTime) < RECOVERY_TIMEOUT_MS;
 
         if (!isOpen) {

@@ -17,7 +17,7 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
 
     private static final Logger logger = Logger.getLogger(NotificationServiceImpl.class.getName());
     private final NotificationEngine notificationEngine = NotificationEngine.getInstance();
-    private static final String DB_PATH = "jdbc:sqlite:trenical.db";
+    private static final String DB_PATH = "jdbc:sqlite:../../trenical.db";
 
     public NotificationServiceImpl() {
         logger.info("NotificationServiceImpl initialized with REAL data only");
@@ -29,7 +29,7 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
 
         try (Connection conn = DriverManager.getConnection(DB_PATH)) {
 
-            // Get REAL ticket from database
+
             Ticket ticket = getRealTicketFromDatabase(conn, request.getTicketId(), request.getUserId());
 
             if (ticket == null) {
@@ -40,11 +40,11 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
                 return;
             }
 
-            // Get the real trip ID from the ticket
+
             String realTripId = ticket.getTrainDetails().getId();
             logger.info("Creating subscription for real trip: " + realTripId);
 
-            // Create observer for REAL train monitoring
+
             TripObserver tripObserver = new TripObserver(responseObserver, request.getTicketId());
             notificationEngine.addObserver(realTripId, tripObserver);
 
@@ -63,9 +63,7 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
         }
     }
 
-    /**
-     * Get real ticket from database with proper validation
-     */
+
     private Ticket getRealTicketFromDatabase(Connection conn, String ticketId, String userId) throws SQLException {
         String sql = """
             SELECT 
@@ -106,19 +104,19 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                // Build real departure station
+
                 Station departureStation = Station.newBuilder()
                         .setId(rs.getString("dep_stop_id"))
                         .setName(rs.getString("dep_station_name"))
                         .build();
 
-                // Build real arrival station
+
                 Station arrivalStation = Station.newBuilder()
                         .setId(rs.getString("arr_stop_id"))
                         .setName(rs.getString("arr_station_name"))
                         .build();
 
-                // Build real train details from GTFS data
+
                 Train trainDetails = Train.newBuilder()
                         .setId(rs.getString("trip_id"))
                         .setTrainNumber(rs.getString("trip_short_name"))
@@ -131,7 +129,7 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
                         .setTrainType(determineTrainType(rs.getString("route_short_name")))
                         .build();
 
-                // Build complete real ticket
+
                 Ticket realTicket = Ticket.newBuilder()
                         .setId(rs.getString("ticket_id"))
                         .setUserId(rs.getString("user_id"))
@@ -154,9 +152,7 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
         return null;
     }
 
-    /**
-     * Determine train type from real route data
-     */
+
     private String determineTrainType(String routeShortName) {
         if (routeShortName == null) return "Regionale";
 
@@ -180,24 +176,21 @@ public class NotificationServiceImpl extends NotificationServiceGrpc.Notificatio
         }
     }
 
-    /**
-     * Convert GTFS time string to Protobuf Timestamp
-     */
+
     private com.google.protobuf.Timestamp convertTimeStringToTimestamp(String timeStr) {
         try {
-            // Convert GTFS time (HH:MM:SS) to timestamp
+
             String[] parts = timeStr.split(":");
             int hours = Integer.parseInt(parts[0]);
             int minutes = Integer.parseInt(parts[1]);
             int seconds = Integer.parseInt(parts[2]);
 
-            // Handle times >= 24:00:00 (next day in GTFS format)
+
             if (hours >= 24) {
                 hours -= 24;
             }
 
-            // For real implementation, you'd calculate proper date
-            // For now, using current time base + offset
+
             java.time.Instant now = java.time.Instant.now();
             long epochSeconds = now.getEpochSecond() + (hours * 3600) + (minutes * 60) + seconds;
 

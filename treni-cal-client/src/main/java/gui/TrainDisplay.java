@@ -40,7 +40,7 @@ public class TrainDisplay {
     }
 
 
-    // Getter methods for JavaFX properties (e.g., idProperty(), getTrainNumber(), etc.)
+
     public String getId() { return id.get(); }
     public SimpleStringProperty idProperty() { return id; }
     public String getTrainNumber() { return trainNumber.get(); }
